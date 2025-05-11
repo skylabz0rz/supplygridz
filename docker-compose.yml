@@ -1,1 +1,93 @@
-# Docker compose placeholder
+version: "3.8"
+
+services:
+
+  # --- Tile Server ---
+  tileserver:
+    image: maptiler/tileserver-gl
+    container_name: gridz-tile-server
+    ports:
+      - "8081:80"
+    volumes:
+      - ./tiles:/data
+    environment:
+      - TILESERVER_CONFIG=/data/config.json
+    restart: unless-stopped
+
+  # --- Overpass API ---
+  overpass:
+    image: wiktorn/overpass-api
+    container_name: gridz-overpass
+    ports:
+      - "12348:80"
+    volumes:
+      - overpass-db:/db
+    environment:
+      - OVERPASS_PLANET_URL=https://planet.openstreetmap.org/planet/planet-latest.osm.bz2
+    restart: unless-stopped
+
+  # --- PostgreSQL with PostGIS ---
+  db:
+    image: postgis/postgis:14-3.2
+    container_name: gridz-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # --- Redis Queue ---
+  redis:
+    image: redis:7
+    container_name: gridz-redis
+    ports:
+      - "6381:6379"
+    restart: unless-stopped
+
+  # --- Flask Backend API ---
+  backend:
+    build: ./backend
+    container_name: gridz-backend-api
+    ports:
+      - "5300:5000"
+    depends_on:
+      - db
+    environment:
+      - FLASK_ENV=development
+    restart: unless-stopped
+
+  # --- Frontend (Map UI) ---
+  frontend:
+    build: ./frontend
+    container_name: gridz-frontend-ui
+    ports:
+      - "8010:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # --- NPC Vehicle Simulator ---
+  simulator:
+    build: ./simulator
+    container_name: gridz-vehicle-simulator
+    depends_on:
+      - backend
+      - redis
+    restart: unless-stopped
+
+  # --- Auth Service ---
+  auth:
+    build: ./auth
+    container_name: gridz-auth-service
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  overpass-db:
+
