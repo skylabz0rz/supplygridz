@@ -2,7 +2,7 @@ from flask import Flask, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:X8r9vPq2wLmA@db:5432/supplygridz'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:adminpass@db:5432/supplygridz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
