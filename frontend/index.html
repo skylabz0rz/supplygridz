@@ -36,7 +36,15 @@
     if (vehicleMarkers[id]) {
       vehicleMarkers[id].setLatLng([lat, lon]);
     } else {
-      vehicleMarkers[id] = L.marker([lat, lon])
+	
+		const vehicleIcon = L.icon({
+			iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
+			iconSize: [32, 32], // width, height
+			iconAnchor: [16, 16], // center the icon
+			popupAnchor: [0, -16]
+			});
+	
+      vehicleMarkers[id] = L.marker([lat, lon], { icon: vehicleIcon })
         .addTo(map)
         .bindPopup(`Vehicle ID: ${id}`);
     }
