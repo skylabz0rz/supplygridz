@@ -48,15 +48,15 @@ services:
       - FLASK_ENV=development
     restart: unless-stopped
 
-  # --- Frontend (Map UI) ---
   frontend:
-    build: ./frontend
+    image: nginx:alpine
     container_name: gridz-frontend-ui
     ports:
       - "8010:80"
-    depends_on:
-      - backend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
     restart: unless-stopped
+
 
   # --- NPC Vehicle Simulator ---
   simulator:
