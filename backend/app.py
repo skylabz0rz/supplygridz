@@ -77,6 +77,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 api = Blueprint('api', __name__, url_prefix='/api')
 
+with app.app_context():
+    db.create_all()
+
+
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
