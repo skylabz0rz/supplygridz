@@ -2,18 +2,6 @@ version: "3.8"
 
 services:
 
-  # --- Tile Server ---
-  tileserver:
-    image: maptiler/tileserver-gl
-    container_name: gridz-tile-server
-    ports:
-      - "8081:80"
-    volumes:
-      - ./tiles:/data
-    environment:
-      - TILESERVER_CONFIG=/data/config.json
-    restart: unless-stopped
-
   # --- Overpass API ---
   overpass:
     image: wiktorn/overpass-api
@@ -86,6 +74,17 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    
+   # --- Real Time Service ---   
+  realtime:
+    build: ./realtime
+    container_name: gridz-realtime
+    ports:
+      - "6001:6001"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
 
 volumes:
   pgdata:
