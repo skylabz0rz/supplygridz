@@ -23,6 +23,27 @@
   }).addTo(map);
 </script>
 
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+  const vehicleMarkers = {};
+
+  const socket = io("https://supplygridz.com");
+
+  socket.on("vehicle_update", (data) => {
+    const { id, lat, lon } = data;
+
+    if (vehicleMarkers[id]) {
+      vehicleMarkers[id].setLatLng([lat, lon]);
+    } else {
+      vehicleMarkers[id] = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`Vehicle ID: ${id}`);
+    }
+  });
+</script>
+
+
 </body>
 </html>
 
