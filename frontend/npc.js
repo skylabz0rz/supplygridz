@@ -2,6 +2,7 @@
 import { map } from './map.js';
 
 let npcTrucks = [];
+let npcRoutes = [];
 let npcInterval;
 
 async function loadTextFile(url) {
@@ -29,7 +30,7 @@ async function spawnNPCs() {
 
   const usedPairs = new Set();
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 50; i++) {
     let start, end;
     do {
       start = cities[Math.floor(Math.random() * cities.length)];
@@ -38,18 +39,32 @@ async function spawnNPCs() {
     usedPairs.add(`${start.name}->${end.name}`);
 
     const company = companies[Math.floor(Math.random() * companies.length)];
-    const progress = Math.random() * 0.8 + 0.1; // 10% to 90%
+    const progress = Math.random() * 0.8 + 0.1;
     const pos = interpolateCoords(start, end, progress);
 
-    const marker = L.marker([pos.lat, pos.lon], {
-      icon: L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      })
-    }).addTo(map).bindPopup(`${company}<br>${start.name} → ${end.name}`);
+    const icon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    const label = `${company}<br>${start.name} → ${end.name}`;
+    const marker = L.marker([pos.lat, pos.lon], { icon })
+      .addTo(map)
+      .bindTooltip(label, { permanent: true, direction: 'right', offset: [10, 0] });
+
+    const routeLine = L.polyline(
+      [[start.lat, start.lon], [end.lat, end.lon]],
+      {
+        color: '#888',
+        weight: 2,
+        opacity: 0.4,
+        dashArray: '5,5'
+      }
+    ).addTo(map);
 
     npcTrucks.push({ marker, start, end, t: progress });
+    npcRoutes.push(routeLine);
   }
 
   npcInterval = setInterval(() => {
@@ -64,7 +79,9 @@ async function spawnNPCs() {
 
 function clearNPCs() {
   npcTrucks.forEach(truck => map.removeLayer(truck.marker));
+  npcRoutes.forEach(line => map.removeLayer(line));
   npcTrucks = [];
+  npcRoutes = [];
   clearInterval(npcInterval);
 }
 
