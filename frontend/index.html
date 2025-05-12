@@ -28,7 +28,7 @@
 <script>
   const vehicleMarkers = {};
 
-  const socket = io("https://supplygridz.com");
+	const socket = io("https://supplygridz.com");
 
   socket.on("vehicle_update", (data) => {
     const { id, lat, lon } = data;
