@@ -71,7 +71,6 @@ def requires_auth(f):
 
     return decorated
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:X8r9vPq2wLmA@db:5432/supplygridz'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
