@@ -4,153 +4,159 @@
   <meta charset="utf-8">
   <title>SupplyGridz Vector Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
-
     html, body {
-	height: 100%;
-	margin: 0;
-	}
-	
-	#app-container {
-		display: flex;
-		flex-direction: row;
-		height: 100%;
-		padding-top: 60px; /* accounts for topbar */
-	}
-	
-	#map {
-		flex: 1;
-		height: calc(100vh - 60px); /* subtract topbar height */
-	}
-	
-	#sidebar {
-		position: absolute;
-		top: 60px;      /* below the top bar */
-		bottom: 0;      /* extend to the bottom */
-		left: 0;
-		width: 260px;
-		background: white;
-		padding: 12px;
-		border-right: 1px solid #ccc;
-		box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-	}
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-	.tabs {
-		margin-bottom: 10px;
-		}
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #222;
+      color: white;
+      padding: 10px 16px;
+      font-family: sans-serif;
+      font-size: 14px;
+      z-index: 1001;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-	.tab {
-		padding: 6px 12px;
-		margin-right: 4px;
-		background: #eee;
-		border: none;
-		border-radius: 4px;
-		cursor: pointer;
-	}
+    #topbar button {
+      margin-left: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
 
-	.tab.active {
-		background: #ccc;
-	}
+    #app-container {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      padding-top: 60px; /* makes space for topbar */
+    }
 
-	.tab-content {
-		display: none;
-	}
+    #sidebar {
+      width: 260px;
+      background: white;
+      padding: 12px;
+      border-right: 1px solid #ccc;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px);
+    }
 
-	.tab-content.active {
-		display: block;
-	}
-	
-	#topbar {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		background: #222;
-		color: white;
-		padding: 10px 16px;
-		font-family: sans-serif;
-		font-size: 14px;
-		z-index: 1001;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+    #map {
+      flex: 1;
+      height: calc(100vh - 60px);
+    }
 
-	#topbar button {
-		margin-left: 8px;
-		padding: 6px 10px;
-		font-size: 12px;
-		cursor: pointer;
-	}
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
 
+    .tab {
+      padding: 6px 12px;
+      background: #eee;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ccc;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Move zoom controls to right side */
+    .leaflet-control-zoom {
+      right: 10px !important;
+      left: auto !important;
+    }
   </style>
-<script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 </head>
 <body>
-<div id="app-container">
+
 <div id="topbar">
-  <div style="float: left; font-weight: bold;">SupplyGridz</div>
-  <div style="float: right;">
+  <div style="font-weight: bold;">SupplyGridz</div>
+  <div>
     <span id="user-display"></span>
     <button id="login-btn">Log In</button>
     <button id="logout-btn" style="display: none;">Log Out</button>
   </div>
 </div>
 
-<div id="sidebar">
-  <h2>Command Center</h2>
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('structures')">Structures</button>
-    <button class="tab" onclick="showTab('road')">Road</button>
-    <button class="tab" onclick="showTab('sea')">Sea</button>
-    <button class="tab" onclick="showTab('air')">Air</button>
-  </div>
+<div id="app-container">
+  <div id="sidebar">
+    <h2>Command Center</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('structures')">Structures</button>
+      <button class="tab" onclick="showTab('road')">Road</button>
+      <button class="tab" onclick="showTab('sea')">Sea</button>
+      <button class="tab" onclick="showTab('air')">Air</button>
+    </div>
 
-  <div id="structures" class="tab-content active">
-    <h3>Structures</h3>
-    <button onclick="placeHQ()">Buy Road Headquarters</button>
-  </div>
+    <div id="structures" class="tab-content active">
+      <h3>Structures</h3>
+      <button onclick="placeHQ()">Buy Road Headquarters</button>
+    </div>
 
-  <div id="road" class="tab-content">
-    <h3>Road Vehicles</h3>
-    <p>Coming soon...</p>
-  </div>
+    <div id="road" class="tab-content">
+      <h3>Road Vehicles</h3>
+      <p>Coming soon...</p>
+    </div>
 
-  <div id="sea" class="tab-content">
-    <h3>Sea Vehicles</h3>
-    <p>Coming soon...</p>
-  </div>
+    <div id="sea" class="tab-content">
+      <h3>Sea Vehicles</h3>
+      <p>Coming soon...</p>
+    </div>
 
-  <div id="air" class="tab-content">
-    <h3>Air Vehicles</h3>
-    <p>Coming soon...</p>
+    <div id="air" class="tab-content">
+      <h3>Air Vehicles</h3>
+      <p>Coming soon...</p>
+    </div>
   </div>
-</div>
-
 
   <div id="map"></div>
-<!-- Add Leaflet CSS & JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</div>
+
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<!-- Auth0 -->
+<script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 
 <script>
   const map = L.map('map').setView([40, -95], 4);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
-</script>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<script>
   const vehicleMarkers = {};
-
-	const socket = io("https://supplygridz.com");
+  const socket = io("https://supplygridz.com");
 
   socket.on("vehicle_update", (data) => {
     const { id, lat, lon } = data;
@@ -158,53 +164,48 @@
     if (vehicleMarkers[id]) {
       vehicleMarkers[id].setLatLng([lat, lon]);
     } else {
-	
-		const vehicleIcon = L.icon({
-			iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
-			iconSize: [32, 32], // width, height
-			iconAnchor: [16, 16], // center the icon
-			popupAnchor: [0, -16]
-			});
-	
+      const vehicleIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+      });
+
       vehicleMarkers[id] = L.marker([lat, lon], { icon: vehicleIcon })
         .addTo(map)
         .bindPopup(`Vehicle ID: ${id}`);
     }
   });
-  
-function showTab(tabId) {
-  document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
 
-  document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
-  document.getElementById(tabId).classList.add('active');
-}
+  function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
 
-function placeHQ() {
-  const hqIcon = L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20]
-  });
+    document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
 
-  const marker = L.marker(map.getCenter(), { icon: hqIcon })
-    .addTo(map)
-    .bindPopup("Road Headquarters (holds 5 road vehicles)")
-    .openPopup();
-}
+  function placeHQ() {
+    const hqIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
+    });
 
-</script>
-<script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
-<script>
+    const marker = L.marker(map.getCenter(), { icon: hqIcon })
+      .addTo(map)
+      .bindPopup("Road Headquarters (holds 5 road vehicles)")
+      .openPopup();
+  }
 
   (async () => {
-	const auth0Client = await createAuth0Client({
-		domain: "dev-tzh46biettai7rin.us.auth0.com",
-		client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
-		audience: "https://supplygridz.com/api",
-		cacheLocation: 'localstorage'
-	});
+    const auth0Client = await createAuth0Client({
+      domain: "dev-tzh46biettai7rin.us.auth0.com",
+      client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
+      audience: "https://supplygridz.com/api",
+      cacheLocation: 'localstorage'
+    });
 
     async function updateUI() {
       const isAuthenticated = await auth0Client.isAuthenticated();
@@ -232,7 +233,5 @@ function placeHQ() {
   })();
 </script>
 
-</div>
 </body>
 </html>
-
