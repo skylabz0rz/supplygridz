@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flask_cors import CORS
 from jose import jwt
-from flask import request, _request_ctx_stack
+from flask import request, g
 import urllib.request
 import json
 
@@ -66,7 +66,7 @@ def requires_auth(f):
         except JWTError as e:
             raise Exception("Token is invalid: " + str(e))
 
-        _request_ctx_stack.top.current_user = payload
+        g.current_user = payload
         return f(*args, **kwargs)
 
     return decorated
