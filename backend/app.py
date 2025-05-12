@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_cors import CORS
 from jose import jwt
 from flask import request, g
 import urllib.request
 import json
+from functools import wraps
+from jose.exceptions import JWTError
 
 app = Flask(__name__)
 CORS(app)
@@ -14,8 +15,12 @@ AUTH0_DOMAIN = "dev-tzh46biettai7rin.us.auth0.com"
 API_AUDIENCE = "https://supplygridz.com/api"
 ALGORITHMS = ["RS256"]
 
-from functools import wraps
-from jose.exceptions import JWTError
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:X8r9vPq2wLmA@db:5432/supplygridz'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+api = Blueprint('api', __name__, url_prefix='/api')
+
 
 def get_token_auth_header():
     auth = request.headers.get("Authorization", None)
@@ -32,6 +37,7 @@ def get_token_auth_header():
         raise Exception("Authorization header must be Bearer token")
 
     return parts[1]
+
 
 def requires_auth(f):
     @wraps(f)
@@ -71,19 +77,11 @@ def requires_auth(f):
 
     return decorated
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:X8r9vPq2wLmA@db:5432/supplygridz'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-api = Blueprint('api', __name__, url_prefix='/api')
-
-with app.app_context():
-    db.create_all()
-
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
+
 
 class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,13 +97,16 @@ class Vehicle(db.Model):
             "owner_id": self.owner_id
         }
 
+
 @api.route("/")
 def home():
     return jsonify({"message": "SupplyGridz backend is running!"})
 
+
 @api.route("/players")
 def players():
     return jsonify([{"id": p.id, "name": p.name} for p in Player.query.all()])
+
 
 @api.route("/vehicles")
 @requires_auth
@@ -115,7 +116,10 @@ def vehicles():
 
 app.register_blueprint(api)
 
+# 👇 One unified init block that runs after blueprint registration
 with app.app_context():
+    db.create_all()
+
     if not Player.query.first():
         p1 = Player(name="Alice")
         p2 = Player(name="Bob")
@@ -128,4 +132,3 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
-
