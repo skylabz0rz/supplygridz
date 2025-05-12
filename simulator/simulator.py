@@ -20,5 +20,5 @@ while True:
     for vehicle in vehicles:
         r.publish('vehicle_updates', json.dumps(vehicle))
     print("Published vehicle data...")
-    time.sleep(5)
+    time.sleep(.5)
 
