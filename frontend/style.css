@@ -1,0 +1,113 @@
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #222;
+      color: white;
+      padding: 10px 16px;
+      font-family: sans-serif;
+      font-size: 14px;
+      z-index: 1001;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #topbar button {
+      margin-left: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+	#app-container {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      padding-top: 60px; /* makes space for topbar */
+    }
+
+    #sidebar {
+      width: 260px;
+      background: white;
+      padding: 12px;
+      border-right: 1px solid #ccc;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px);
+    }
+
+    #map {
+      flex: 1;
+      height: calc(100vh - 60px);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tab {
+      padding: 6px 12px;
+      background: #eee;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ccc;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Move zoom controls to right side */
+    .leaflet-control-zoom {
+      right: 10px !important;
+      left: auto !important;
+    }
+	
+	#welcome-screen {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: calc(100vh - 60px);
+		padding-top: 60px;
+	}
+
+	.welcome-box {
+		background: white;
+		padding: 32px;
+		border-radius: 10px;
+		box-shadow: 0 0 10px rgba(0,0,0,0.2);
+		text-align: center;
+		max-width: 400px;
+	}
+
+	.welcome-box h1 {
+		margin-top: 0;
+	}
+
+	#welcome-login-btn {
+		font-size: 18px;
+		padding: 10px 20px;
+		margin-top: 20px;
+		cursor: pointer;
+	}
