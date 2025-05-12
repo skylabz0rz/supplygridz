@@ -4,10 +4,7 @@
   <meta charset="utf-8">
   <title>SupplyGridz Vector Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Your custom stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -31,7 +28,7 @@
   </div>
 </div>
 
-<!-- Main App Interface -->
+<!-- Main App Container -->
 <div id="app-container">
   <div id="sidebar">
     <h2>Command Center</h2>
@@ -67,25 +64,26 @@
 </div>
 
 <!-- JS Libraries -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<!-- Module Scripts -->
+<script type="module" src="map.js"></script>
+<script type="module" src="npc.js"></script>
+<script type="module" src="auth.js"></script>
+
+<!-- Sidebar Tabs & HQ (non-module) -->
 <script>
-  let map;
-  let vehicleMarkers = {};
-
   function showTab(tabId) {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
-
     document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
     document.getElementById(tabId).classList.add('active');
   }
 
   function placeHQ() {
-    if (!map) return;
-
+    if (!window.map) return;
     const hqIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
       iconSize: [40, 40],
@@ -93,86 +91,11 @@
       popupAnchor: [0, -20]
     });
 
-    const marker = L.marker(map.getCenter(), { icon: hqIcon })
-      .addTo(map)
+    const marker = L.marker(window.map.getCenter(), { icon: hqIcon })
+      .addTo(window.map)
       .bindPopup("Road Headquarters (holds 5 road vehicles)")
       .openPopup();
   }
-
-  (async () => {
-    const auth0Client = await createAuth0Client({
-      domain: "dev-tzh46biettai7rin.us.auth0.com",
-      client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
-      audience: "https://supplygridz.com/api",
-      cacheLocation: 'localstorage'
-    });
-
-    async function updateUI() {
-      const isAuthenticated = await auth0Client.isAuthenticated();
-
-      if (isAuthenticated) {
-        const user = await auth0Client.getUser();
-        document.getElementById("user-display").innerText = `Logged in as: ${user.name}`;
-        document.getElementById("login-btn").style.display = "none";
-        document.getElementById("logout-btn").style.display = "inline-block";
-
-        document.getElementById("welcome-screen").style.display = "none";
-        document.getElementById("app-container").style.display = "flex";
-
-        // Initialize map only after the app is visible
-        setTimeout(() => {
-          map = L.map('map').setView([40, -95], 4);
-
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }).addTo(map);
-
-          const socket = io("https://supplygridz.com");
-          vehicleMarkers = {};
-
-          socket.on("vehicle_update", (data) => {
-            const { id, lat, lon } = data;
-
-            if (vehicleMarkers[id]) {
-              vehicleMarkers[id].setLatLng([lat, lon]);
-            } else {
-              const vehicleIcon = L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
-              });
-
-              vehicleMarkers[id] = L.marker([lat, lon], { icon: vehicleIcon })
-                .addTo(map)
-                .bindPopup(`Vehicle ID: ${id}`);
-            }
-          });
-
-          map.invalidateSize();
-        }, 100);
-      } else {
-        document.getElementById("user-display").innerText = "";
-        document.getElementById("login-btn").style.display = "inline-block";
-        document.getElementById("logout-btn").style.display = "none";
-
-        document.getElementById("welcome-screen").style.display = "flex";
-      }
-    }
-
-    // Handle redirect from Auth0
-    if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-      await auth0Client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, "/");
-    }
-
-    // Button bindings
-    document.getElementById("login-btn").onclick = () => auth0Client.loginWithRedirect();
-    document.getElementById("welcome-login-btn").onclick = () => auth0Client.loginWithRedirect();
-    document.getElementById("logout-btn").onclick = () => auth0Client.logout({ returnTo: window.location.origin });
-
-    updateUI();
-  })();
 </script>
 
 </body>
