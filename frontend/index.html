@@ -6,9 +6,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body, #map { margin: 0; height: 100%; }
+	
+	#sidebar {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		z-index: 1000;
+		background: white;
+		padding: 12px;
+		border-radius: 8px;
+		box-shadow: 0 0 6px rgba(0,0,0,0.2);
+		width: 250px;
+		}
+		
+	.tabs {
+		margin-bottom: 10px;
+		}
+
+	.tab {
+		padding: 6px 12px;
+		margin-right: 4px;
+		background: #eee;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.tab.active {
+		background: #ccc;
+	}
+
+	.tab-content {
+		display: none;
+	}
+
+	.tab-content.active {
+		display: block;
+	}
+	
+	#topbar {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		background: #222;
+		color: white;
+		padding: 10px 16px;
+		font-family: sans-serif;
+		font-size: 14px;
+		z-index: 1001;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	#topbar button {
+		margin-left: 8px;
+		padding: 6px 10px;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
   </style>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 </head>
 <body>
+<div id="topbar">
+  <div style="float: left; font-weight: bold;">SupplyGridz</div>
+  <div style="float: right;">
+    <span id="user-display"></span>
+    <button id="login-btn">Log In</button>
+    <button id="logout-btn" style="display: none;">Log Out</button>
+  </div>
+</div>
+
+<div id="sidebar">
+  <h2>Command Center</h2>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('structures')">Structures</button>
+    <button class="tab" onclick="showTab('road')">Road</button>
+    <button class="tab" onclick="showTab('sea')">Sea</button>
+    <button class="tab" onclick="showTab('air')">Air</button>
+  </div>
+
+  <div id="structures" class="tab-content active">
+    <h3>Structures</h3>
+    <button onclick="placeHQ()">Buy Road Headquarters</button>
+  </div>
+
+  <div id="road" class="tab-content">
+    <h3>Road Vehicles</h3>
+    <p>Coming soon...</p>
+  </div>
+
+  <div id="sea" class="tab-content">
+    <h3>Sea Vehicles</h3>
+    <p>Coming soon...</p>
+  </div>
+
+  <div id="air" class="tab-content">
+    <h3>Air Vehicles</h3>
+    <p>Coming soon...</p>
+  </div>
+</div>
+
+
   <div id="map"></div>
 <!-- Add Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -49,6 +151,29 @@
         .bindPopup(`Vehicle ID: ${id}`);
     }
   });
+  
+function showTab(tabId) {
+  document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+
+  document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+function placeHQ() {
+  const hqIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -20]
+  });
+
+  const marker = L.marker(map.getCenter(), { icon: hqIcon })
+    .addTo(map)
+    .bindPopup("Road Headquarters (holds 5 road vehicles)")
+    .openPopup();
+}
+
 </script>
 
 
