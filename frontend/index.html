@@ -7,12 +7,12 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
+  <!-- Your custom stylesheet -->
   <link rel="stylesheet" href="style.css" />
-
 </head>
 <body>
 
+<!-- Topbar -->
 <div id="topbar">
   <div style="font-weight: bold;">SupplyGridz</div>
   <div>
@@ -22,6 +22,7 @@
   </div>
 </div>
 
+<!-- Welcome Screen -->
 <div id="welcome-screen">
   <div class="welcome-box">
     <h1>Welcome to SupplyGridz</h1>
@@ -30,7 +31,7 @@
   </div>
 </div>
 
-
+<!-- Main App Interface -->
 <div id="app-container">
   <div id="sidebar">
     <h2>Command Center</h2>
@@ -65,41 +66,14 @@
   <div id="map"></div>
 </div>
 
-<!-- Leaflet JS -->
+<!-- JS Libraries -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Socket.IO -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<!-- Auth0 -->
 <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 
 <script>
-  const map = L.map('map').setView([40, -95], 4);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-
-  const vehicleMarkers = {};
-  const socket = io("https://supplygridz.com");
-
-  socket.on("vehicle_update", (data) => {
-    const { id, lat, lon } = data;
-
-    if (vehicleMarkers[id]) {
-      vehicleMarkers[id].setLatLng([lat, lon]);
-    } else {
-      const vehicleIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
-      });
-
-      vehicleMarkers[id] = L.marker([lat, lon], { icon: vehicleIcon })
-        .addTo(map)
-        .bindPopup(`Vehicle ID: ${id}`);
-    }
-  });
+  let map;
+  let vehicleMarkers = {};
 
   function showTab(tabId) {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
@@ -110,6 +84,8 @@
   }
 
   function placeHQ() {
+    if (!map) return;
+
     const hqIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
       iconSize: [40, 40],
@@ -143,8 +119,36 @@
         document.getElementById("welcome-screen").style.display = "none";
         document.getElementById("app-container").style.display = "flex";
 
-        // Fix for hidden map becoming visible
+        // Initialize map only after the app is visible
         setTimeout(() => {
+          map = L.map('map').setView([40, -95], 4);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(map);
+
+          const socket = io("https://supplygridz.com");
+          vehicleMarkers = {};
+
+          socket.on("vehicle_update", (data) => {
+            const { id, lat, lon } = data;
+
+            if (vehicleMarkers[id]) {
+              vehicleMarkers[id].setLatLng([lat, lon]);
+            } else {
+              const vehicleIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+              });
+
+              vehicleMarkers[id] = L.marker([lat, lon], { icon: vehicleIcon })
+                .addTo(map)
+                .bindPopup(`Vehicle ID: ${id}`);
+            }
+          });
+
           map.invalidateSize();
         }, 100);
       } else {
@@ -157,11 +161,13 @@
       }
     }
 
+    // Handle redirect from Auth0
     if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
       await auth0Client.handleRedirectCallback();
       window.history.replaceState({}, document.title, "/");
     }
 
+    // Button bindings
     document.getElementById("login-btn").onclick = () => auth0Client.loginWithRedirect();
     document.getElementById("welcome-login-btn").onclick = () => auth0Client.loginWithRedirect();
     document.getElementById("logout-btn").onclick = () => auth0Client.logout({ returnTo: window.location.origin });
@@ -169,7 +175,6 @@
     updateUI();
   })();
 </script>
-
 
 </body>
 </html>
