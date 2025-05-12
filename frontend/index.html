@@ -133,15 +133,27 @@
 
     async function updateUI() {
       const isAuthenticated = await auth0Client.isAuthenticated();
+
       if (isAuthenticated) {
         const user = await auth0Client.getUser();
         document.getElementById("user-display").innerText = `Logged in as: ${user.name}`;
         document.getElementById("login-btn").style.display = "none";
         document.getElementById("logout-btn").style.display = "inline-block";
+
+        document.getElementById("welcome-screen").style.display = "none";
+        document.getElementById("app-container").style.display = "flex";
+
+        // Fix for hidden map becoming visible
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 100);
       } else {
         document.getElementById("user-display").innerText = "";
         document.getElementById("login-btn").style.display = "inline-block";
         document.getElementById("logout-btn").style.display = "none";
+
+        document.getElementById("welcome-screen").style.display = "flex";
+        document.getElementById("app-container").style.display = "none";
       }
     }
 
@@ -151,11 +163,13 @@
     }
 
     document.getElementById("login-btn").onclick = () => auth0Client.loginWithRedirect();
+    document.getElementById("welcome-login-btn").onclick = () => auth0Client.loginWithRedirect();
     document.getElementById("logout-btn").onclick = () => auth0Client.logout({ returnTo: window.location.origin });
 
     updateUI();
   })();
 </script>
+
 
 </body>
 </html>
