@@ -11,6 +11,13 @@
 	margin: 0;
 	}
 	
+	#app-container {
+		display: flex;
+		flex-direction: row;
+		height: 100%;
+		padding-top: 60px; /* accounts for topbar */
+	}
+	
 	#sidebar {
 		position: absolute;
 		top: 60px;      /* below the top bar */
@@ -78,6 +85,7 @@
 <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 </head>
 <body>
+<div id="app-container">
 <div id="topbar">
   <div style="float: left; font-weight: bold;">SupplyGridz</div>
   <div style="float: right;">
@@ -219,7 +227,7 @@ function placeHQ() {
   })();
 </script>
 
-
+</div>
 </body>
 </html>
 
