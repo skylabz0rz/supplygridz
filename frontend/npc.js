@@ -29,7 +29,7 @@ async function spawnNPCs() {
 
   const usedPairs = new Set();
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     let start, end;
     do {
       start = cities[Math.floor(Math.random() * cities.length)];
@@ -43,7 +43,7 @@ async function spawnNPCs() {
 
     const marker = L.marker([pos.lat, pos.lon], {
       icon: L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743131.png',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
         iconSize: [32, 32],
         iconAnchor: [16, 16]
       })
