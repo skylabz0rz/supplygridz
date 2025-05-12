@@ -28,11 +28,16 @@ html, body {
 }
 
 #welcome-screen {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
   display: none;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  padding-top: 60px;
+  background: rgba(255, 255, 255, 0.9); /* semi-transparent overlay */
 }
 
 .welcome-box {
@@ -56,10 +61,11 @@ html, body {
 }
 
 #app-container {
-  display: none; /* shown only when logged in */
+  display: flex;
   flex-direction: row;
   height: 100%;
-  padding-top: 60px; /* leave room for topbar */
+  padding-top: 60px;
+  position: relative;
 }
 
 #sidebar {
