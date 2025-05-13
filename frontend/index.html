@@ -71,6 +71,11 @@
 <script type="module" src="npc.js"></script>
 <script type="module" src="auth.js"></script>
 
+<script type="module">
+  import { initAuth } from './auth.js';
+  initAuth();  // This starts login + NPC logic
+</script>
+
 <script>
   function showTab(tabId) {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
@@ -94,5 +99,7 @@
       .openPopup();
   }
 </script>
+
+
 </body>
 </html>
