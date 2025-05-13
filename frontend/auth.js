@@ -5,7 +5,7 @@ let auth0Client = null;
 (async () => {
   auth0Client = await createAuth0Client({
     domain: "dev-tzh46biettai7rin.us.auth0.com",
-    client_id: "km3Gmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
+    client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
     audience: "https://supplygridz.com/api",
     cacheLocation: 'localstorage',
     useRefreshTokens: true
