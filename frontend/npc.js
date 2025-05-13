@@ -6,24 +6,14 @@ let npcRoutes = [];
 let npcInterval;
 let spawnInterval;
 
-const SPEED_BY_ROAD = {
-  interstate: [65, 80],
-  highway: [55, 70],
+const roadSpeedLimits = {
+  motorway: [65, 80],
+  trunk: [55, 70],
+  primary: [45, 60],
+  secondary: [35, 50],
   residential: [25, 35],
-  unknown: [40, 60]
+  unknown: [40, 55]
 };
-
-const SPEED_LIMIT_BY_VEHICLE = {
-  default: 80,  // placeholder, to be customized per vehicle
-};
-
-function classifyRoad(name) {
-  if (!name) return 'unknown';
-  if (/I-\d+/.test(name) || name.includes("Interstate")) return 'interstate';
-  if (/US-\d+/.test(name) || name.includes("Hwy") || name.includes("Highway")) return 'highway';
-  if (/Main|1st|2nd|3rd|Street|Ave|Rd/.test(name)) return 'residential';
-  return 'unknown';
-}
 
 async function loadTextFile(url) {
   const response = await fetch(url);
@@ -36,11 +26,29 @@ function parseCityLine(line) {
   return { name, lat: parseFloat(lat), lon: parseFloat(lon) };
 }
 
-function decodeGeoJSONRoute(coords) {
-  return coords.map(pair => [pair[1], pair[0]]);
+function decodeGeo(step) {
+  const coords = step.geometry.coordinates.map(pair => [pair[1], pair[0]]);
+  return coords;
 }
 
-async function fetchDetailedRoute(start, end) {
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function getSpeedForRoad(type) {
+  const [min, max] = roadSpeedLimits[type] || roadSpeedLimits["unknown"];
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function fetchRouteSteps(start, end) {
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   const response = await fetch(url);
   const contentType = response.headers.get("content-type");
@@ -52,7 +60,7 @@ async function fetchDetailedRoute(start, end) {
   return data.routes[0].legs[0].steps;
 }
 
-async function tryGenerateOne(cities, companies, usedPairs, npcIndex) {
+async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const start = cities[Math.floor(Math.random() * cities.length)];
     const end = cities[Math.floor(Math.random() * cities.length)];
@@ -63,25 +71,26 @@ async function tryGenerateOne(cities, companies, usedPairs, npcIndex) {
     console.log(`NPC${npcIndex}: ${company} from ${start.name} → ${end.name}`);
 
     try {
-      const steps = await fetchDetailedRoute(start, end);
-      let routeCoords = [];
-      let speedPlan = [];
+      const steps = await fetchRouteSteps(start, end);
+      const route = [];
 
       steps.forEach(step => {
-        const coords = decodeGeoJSONRoute(step.geometry.coordinates);
-        const roadType = classifyRoad(step.name || step.ref);
-        const [min, max] = SPEED_BY_ROAD[roadType] || SPEED_BY_ROAD.unknown;
-        const speed = Math.floor(Math.random() * (max - min + 1)) + min;
-        coords.forEach((coord, idx) => {
-          routeCoords.push(coord);
-          if (idx > 0) speedPlan.push(Math.min(speed, SPEED_LIMIT_BY_VEHICLE.default));
+        const coords = decodeGeo(step);
+        const roadClass = step.maneuver?.modifier || "unknown";
+        const roadName = step.name || "Unnamed Road";
+        const speed = getSpeedForRoad(roadClass);
+
+        coords.forEach(coord => {
+          route.push({
+            latlng: coord,
+            speed,
+            road: roadName
+          });
         });
       });
 
-      if (routeCoords.length < 2) throw new Error("Too short");
-
-      const progressIndex = Math.floor(routeCoords.length * (Math.random() * 0.8 + 0.1));
-      const marker = L.marker(routeCoords[progressIndex], {
+      const startIdx = Math.floor(route.length * (Math.random() * 0.8 + 0.1));
+      const marker = L.marker(route[startIdx].latlng, {
         icon: L.icon({
           iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
           iconSize: [28, 28],
@@ -89,15 +98,15 @@ async function tryGenerateOne(cities, companies, usedPairs, npcIndex) {
         })
       }).addTo(map);
 
-      const polyline = L.polyline(routeCoords, {
+      const routeLine = L.polyline(route.map(r => r.latlng), {
         color: '#444',
         weight: 2,
         opacity: 0.5,
         dashArray: '4,6'
       }).addTo(map);
 
-      const updateTooltip = (speed) => {
-        marker.setTooltipContent(`${company}<br>${start.name} → ${end.name}<br>Speed: ${speed.toFixed(1)} mph`);
+      const updateTooltip = (speed, road) => {
+        marker.setTooltipContent(`${company}<br>${start.name} → ${end.name}<br>${road}<br>Speed: ${speed.toFixed(1)} mph`);
       };
 
       marker.bindTooltip('', {
@@ -106,12 +115,11 @@ async function tryGenerateOne(cities, companies, usedPairs, npcIndex) {
 
       npcTrucks.push({
         marker,
-        route: routeCoords,
-        speedPlan,
-        index: progressIndex,
+        route,
+        index: startIdx,
         updateTooltip
       });
-      npcRoutes.push(polyline);
+      npcRoutes.push(routeLine);
       return;
     } catch (err) {
       console.warn(`NPC${npcIndex} attempt ${attempt + 1} failed:`, err.message);
@@ -134,18 +142,22 @@ async function spawnNPCs() {
       clearInterval(spawnInterval);
       return;
     }
-    await tryGenerateOne(cities, companies, usedPairs, npcCount + 1);
+    await generateOneNPC(cities, companies, usedPairs, npcCount + 1);
     npcCount++;
-  }, 1000);
+  }, 800);
 
   npcInterval = setInterval(() => {
     npcTrucks.forEach(truck => {
       const current = truck.route[truck.index];
-      truck.index = (truck.index + 1) % truck.route.length;
-      const next = truck.route[truck.index];
-      const speed = truck.speedPlan[truck.index] || 50;
-      truck.marker.setLatLng(next);
-      truck.updateTooltip(speed);
+      const nextIndex = (truck.index + 1) % truck.route.length;
+      const next = truck.route[nextIndex];
+
+      const distance = calculateDistance(current.latlng[0], current.latlng[1], next.latlng[0], next.latlng[1]);
+      const speed = next.speed;
+
+      truck.marker.setLatLng(next.latlng);
+      truck.index = nextIndex;
+      truck.updateTooltip(speed, next.road);
     });
   }, 1500);
 }
@@ -160,5 +172,3 @@ function clearNPCs() {
 }
 
 export { spawnNPCs, clearNPCs };
-
-
