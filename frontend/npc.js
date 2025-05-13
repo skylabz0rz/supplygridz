@@ -91,7 +91,7 @@ async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
       const startIdx = Math.floor(route.length * (Math.random() * 0.8 + 0.1));
       const marker = L.marker(route[startIdx].latlng, {
         icon: L.icon({
-          iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854894.png',  // truck icon
+          iconUrl: 'https://cdn-icons-png.flaticon.com/512/8154/8154294.png',  // truck icon
           iconSize: [28, 28],
           iconAnchor: [14, 14]
         })
