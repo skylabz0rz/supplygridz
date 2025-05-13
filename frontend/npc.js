@@ -1,6 +1,6 @@
 
-import cities from './cities.txt';
-import companies from './companies.txt';
+import { cities } from './cities.js';
+import { companies } from './companies.js';
 
 let npcCount = 1;  // Reduced to 1 for home screen testing
 let activeNPCs = [];
