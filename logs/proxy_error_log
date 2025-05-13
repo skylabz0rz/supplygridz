@@ -1,0 +1,1 @@
+2025/05/11 17:13:17 [error] 1329817#0: *3 connect() failed (111: Connection refused) while connecting to upstream, client: 199.91.65.170, server: supplygridz.com, request: "GET /api/ HTTP/2.0", upstream: "http://127.0.0.1:5300/api/", host: "supplygridz.com"

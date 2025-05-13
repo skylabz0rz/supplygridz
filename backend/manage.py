@@ -1,0 +1,1 @@
+# Django manage script placeholder
