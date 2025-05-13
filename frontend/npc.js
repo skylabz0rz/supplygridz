@@ -79,7 +79,6 @@ async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
         const roadClass = step.maneuver?.modifier || "unknown";
         const roadName = step.name || "Unnamed Road";
         const speed = getSpeedForRoad(roadClass);
-
         coords.forEach(coord => {
           route.push({
             latlng: coord,
@@ -92,7 +91,7 @@ async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
       const startIdx = Math.floor(route.length * (Math.random() * 0.8 + 0.1));
       const marker = L.marker(route[startIdx].latlng, {
         icon: L.icon({
-          iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
+          iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743007.png',
           iconSize: [28, 28],
           iconAnchor: [14, 14]
         })
@@ -138,13 +137,13 @@ async function spawnNPCs() {
   let npcCount = 0;
 
   spawnInterval = setInterval(async () => {
-    if (npcCount >= 10) {
+    if (npcCount >= 20) {
       clearInterval(spawnInterval);
       return;
     }
     await generateOneNPC(cities, companies, usedPairs, npcCount + 1);
     npcCount++;
-  }, 800);
+  }, 400);
 
   npcInterval = setInterval(() => {
     npcTrucks.forEach(truck => {
@@ -153,7 +152,11 @@ async function spawnNPCs() {
       const next = truck.route[nextIndex];
 
       const distance = calculateDistance(current.latlng[0], current.latlng[1], next.latlng[0], next.latlng[1]);
-      const speed = next.speed;
+      let speed = next.speed;
+
+      // Add jitter
+      speed += Math.floor(Math.random() * 7) - 3;  // +/- 3 mph jitter
+      if (speed < 5) speed = 5;
 
       truck.marker.setLatLng(next.latlng);
       truck.index = nextIndex;
