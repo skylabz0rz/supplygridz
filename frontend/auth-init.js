@@ -37,14 +37,15 @@ window.login = async () => {
 };
 
 window.addEventListener('DOMContentLoaded', () => {
-  window.map = L.map('map').setView([39.8283, -98.5795], 4);  // Center USA
+  if (!window.map) {
+    window.map = L.map('map').setView([39.8283, -98.5795], 4);  // Center USA
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(window.map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(window.map);
+  }
 
-  // Spawn NPCs right away for animated map
   spawnNPCs();
 });
 
