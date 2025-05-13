@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - SupplyGridz</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .table th, .table td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+    .table th { background-color: #f5f5f5; }
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 12px; color: white; }
+    .badge.player { background-color: #007bff; }
+    .badge.admin { background-color: #28a745; }
+    .actions button { margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">Admin Panel</div>
+      <nav>
+        <ul>
+          <li onclick="location.href='/dashboard.html'">⬅ Back to Game</li>
+          <li class="active">🧑‍💼 User Management</li>
+          <li>🚚 Vehicle Manager</li>
+          <li>🏪 Warehouses</li>
+          <li>🧰 Service Centers</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <div class="title">Player Accounts</div>
+        <div class="user-area">
+          <button onclick="logout()">Logout</button>
+        </div>
+      </header>
+
+      <section id="content">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Email</th>
+              <th>In-Game Name</th>
+              <th>Role</th>
+              <th>$ Balance</th>
+              <th>🎟️ Vouchers</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <!-- JS will render rows here -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Dummy players (simulate database)
+    const players = [
+      {
+        id: 1,
+        name: "Alice",
+        email: "alice@supplygridz.com",
+        screenName: "GridQueen",
+        role: "player",
+        money: 15250,
+        vouchers: 2
+      },
+      {
+        id: 2,
+        name: "Bob",
+        email: "bob@admin.com",
+        screenName: "AdminBob",
+        role: "admin",
+        money: 999999,
+        vouchers: 10
+      }
+    ];
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+
+    function renderUsers() {
+      const tbody = document.getElementById("user-table-body");
+      tbody.innerHTML = "";
+
+      players.forEach((p, i) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.email}</td>
+          <td>${p.screenName}</td>
+          <td><span class="badge ${p.role}">${p.role}</span></td>
+          <td>$${p.money.toLocaleString()}</td>
+          <td>${p.vouchers}</td>
+          <td class="actions">
+            <button onclick="toggleRole(${i})">Toggle Role</button>
+            <button onclick="editMoney(${i})">💰</button>
+            <button onclick="editVouchers(${i})">🎟️</button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function toggleRole(index) {
+      players[index].role = players[index].role === "admin" ? "player" : "admin";
+      renderUsers();
+    }
+
+    function editMoney(index) {
+      const val = prompt("Enter new money value:", players[index].money);
+      if (val !== null) {
+        players[index].money = parseInt(val) || 0;
+        renderUsers();
+      }
+    }
+
+    function editVouchers(index) {
+      const val = prompt("Enter voucher count:", players[index].vouchers);
+      if (val !== null) {
+        players[index].vouchers = parseInt(val) || 0;
+        renderUsers();
+      }
+    }
+
+    renderUsers();
+  </script>
+</body>
+</html>

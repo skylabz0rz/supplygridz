@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SupplyGridz Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">SupplyGridz</div>
+      <nav>
+        <ul>
+          <li class="active">📦 Fleet</li>
+          <li>🗺️ Map</li>
+          <li>📊 Contracts</li>
+          <li>🏢 Companies</li>
+          <li>⚙️ Settings</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <div class="title">Fleet Dashboard</div>
+        <div class="user-area">
+          <span id="user-name">Logged in as ...</span>
+          <button id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section id="content">
+        <div class="card">
+          <h2>Your Fleet</h2>
+          <p>You'll manage your vehicles here soon.</p>
+        </div>
+
+        <div class="card">
+          <h2>Live Map</h2>
+          <p>Live vehicle positions and events coming next.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById("logout-btn").onclick = function () {
+      localStorage.clear();
+      window.location.href = "/";
+    };
+  </script>
+</body>
+</html>

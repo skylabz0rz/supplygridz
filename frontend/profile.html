@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Player Profile</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">SupplyGridz</div>
+      <nav>
+        <ul>
+          <li onclick="location.href='/dashboard.html'">⬅ Dashboard</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <div class="title">Player Profile</div>
+        <div class="user-area">
+          <button onclick="logout()">Logout</button>
+        </div>
+      </header>
+
+      <section id="content">
+        <div class="card">
+          <h2>Auth0 Info</h2>
+          <p><strong>Name:</strong> <span id="auth0-name"></span></p>
+          <p><strong>Email:</strong> <span id="auth0-email"></span></p>
+          <img id="auth0-picture" style="width: 100px; border-radius: 50%;" />
+        </div>
+
+        <div class="card">
+          <h2>In-Game Name</h2>
+          <form id="name-form">
+            <label>Choose Screen Name:</label><br />
+            <input type="text" id="screen-name" required />
+            <button type="submit">Save</button>
+            <p id="name-feedback" style="color: red;"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bad-words"></script>
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
+  <script>
+    let auth0Client = null;
+
+    async function logout() {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+
+    async function init() {
+      auth0Client = await createAuth0Client({
+        domain: "dev-tzh46biettai7rin.us.auth0.com",
+        client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr"
+      });
+
+      const isAuthenticated = await auth0Client.isAuthenticated();
+
+      if (!isAuthenticated) {
+        return auth0Client.loginWithRedirect();
+      }
+
+      const user = await auth0Client.getUser();
+      document.getElementById("auth0-name").innerText = user.name;
+      document.getElementById("auth0-email").innerText = user.email;
+      document.getElementById("auth0-picture").src = user.picture;
+    }
+
+    document.getElementById("name-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const Filter = window.BadWordsFilter;
+      const filter = new Filter();
+      const name = document.getElementById("screen-name").value;
+
+      if (filter.isProfane(name)) {
+        document.getElementById("name-feedback").innerText = "That name is not allowed.";
+      } else {
+        document.getElementById("name-feedback").innerText = "Saved!";
+        localStorage.setItem("inGameName", name);
+        // 🔐 TODO: Save to backend in future
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

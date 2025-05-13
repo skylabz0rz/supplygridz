@@ -2,6 +2,9 @@ import { spawnNPCs, clearNPCs } from './npc.js';
 
 let auth0Client = null;
 
+// Always spawn NPCs for login screen background
+spawnNPCs();
+
 (async () => {
   auth0Client = await createAuth0Client({
     domain: "dev-tzh46biettai7rin.us.auth0.com",
@@ -11,7 +14,7 @@ let auth0Client = null;
     useRefreshTokens: true
   });
 
-  // Handle login redirect callback
+  // Handle login redirect
   if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
     await auth0Client.handleRedirectCallback();
     window.history.replaceState({}, document.title, "/");
@@ -19,23 +22,10 @@ let auth0Client = null;
 
   const isAuthenticated = await auth0Client.isAuthenticated();
 
-if (!isAuthenticated) {
-  console.log("User not authenticated. Waiting for manual login...");
-  return; // Do nothing. Lock handles login now.
-}
-
-  updateUI(true);
-})();
-
-async function updateUI(authAvailable = true) {
-  const $ = (id) => document.getElementById(id);
-  const sidebar = $("sidebar");
-  const mapDiv = $("map");
-
-  if (authAvailable && auth0Client) {
-    const user = await auth0Client.getUser();
-    if (sidebar) sidebar.classList.remove("hidden");
-    if (mapDiv) mapDiv.classList.remove("disabled");
+  if (isAuthenticated) {
     clearNPCs();
+    window.location.href = "/dashboard.html"; // ← redirect to your new dashboard
+  } else {
+    console.log("User not authenticated. Showing login with NPCs active.");
   }
-}
+})();

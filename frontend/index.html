@@ -80,14 +80,13 @@
   const lock = new Auth0Lock('km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr', 'dev-tzh46biettai7rin.us.auth0.com', {
     container: 'auth0-login-container',
     auth: {
-      redirectUrl: window.location.origin,
+      redirect: false, // Don't redirect — we’ll manually handle it
       responseType: 'token id_token',
       params: {
         scope: 'openid profile email'
       }
     },
     theme: {
-      logo: 'https://supplygridz.com/logo.png', // optional
       primaryColor: '#eb5424'
     },
     languageDictionary: {
@@ -95,9 +94,16 @@
     }
   });
 
-  // Show the login form immediately
+  lock.on("authenticated", function(authResult) {
+    console.log("✅ Authenticated!", authResult);
+    localStorage.setItem("access_token", authResult.accessToken);
+    localStorage.setItem("id_token", authResult.idToken);
+    window.location.href = "/dashboard.html";
+  });
+
   lock.show();
 </script>
+
 
 </body>
 </html>
