@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
 
 
-  # --- Overpass API ---
+  # --- Overpass API ---------
   overpass:
     image: wiktorn/overpass-api
     container_name: gridz-overpass

@@ -1,4 +1,3 @@
-
 import { spawnNPCs, clearNPCs } from './npc.js';
 
 let auth0Client = null;
