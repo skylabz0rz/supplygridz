@@ -1,3 +1,4 @@
+
 html, body {
   height: 100%;
   margin: 0;
@@ -27,16 +28,6 @@ html, body {
   cursor: pointer;
 }
 
-#topbar.hidden,
-#sidebar.hidden {
-  display: none;
-}
-
-#map.disabled {
-  pointer-events: none;
-  filter: grayscale(60%) brightness(90%);
-}
-
 #welcome-screen {
   position: absolute;
   top: 60px;
@@ -47,7 +38,6 @@ html, body {
   display: none;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9); /* semi-transparent overlay */
 }
 
 .welcome-box {
@@ -95,7 +85,6 @@ html, body {
   height: calc(100vh - 60px);
 }
 
-/* Sidebar tab styles */
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -124,8 +113,20 @@ html, body {
   display: block;
 }
 
-/* Move zoom buttons to the right */
 .leaflet-control-zoom {
   right: 10px !important;
   left: auto !important;
+}
+
+#topbar.hidden,
+#sidebar.hidden {
+  display: none !important;
+}
+
+#map.disabled {
+  pointer-events: none;
+}
+
+#map.disabled .leaflet-control-zoom {
+  display: none;
 }
