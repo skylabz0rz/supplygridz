@@ -20,11 +20,24 @@ function decodeGeoJSONRoute(coords) {
   return coords.map(pair => [pair[1], pair[0]]);
 }
 
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 async function fetchRoute(start, end) {
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
   const response = await fetch(url);
   const data = await response.json();
-  if (data.code !== 'Ok') throw new Error('Route error');
+  if (data.code !== 'Ok' || data.routes.length === 0) throw new Error('Route error');
   return decodeGeoJSONRoute(data.routes[0].geometry.coordinates);
 }
 
@@ -54,19 +67,32 @@ async function spawnNPCs() {
           iconSize: [28, 28],
           iconAnchor: [14, 14]
         })
-      }).addTo(map).bindTooltip(`${company}<br>${start.name} → ${end.name}`, {
-        permanent: true, direction: 'right', offset: [10, 0]
-      });
+      }).addTo(map);
 
-      const polyline = L.polyline(routeCoords, {
-        color: '#888',
+      const routeLine = L.polyline(routeCoords, {
+        color: '#444',
         weight: 2,
-        opacity: 0.3,
+        opacity: 0.5,
         dashArray: '4,6'
       }).addTo(map);
 
-      npcTrucks.push({ marker, route: routeCoords, index: progressIndex });
-      npcRoutes.push(polyline);
+      const updateTooltip = (speed) => {
+        marker.setTooltipContent(`${company}<br>${start.name} → ${end.name}<br>Speed: ${speed.toFixed(1)} mph`);
+      };
+
+      marker.bindTooltip('', {
+        permanent: true, direction: 'right', offset: [10, 0]
+      });
+
+      npcTrucks.push({
+        marker,
+        route: routeCoords,
+        index: progressIndex,
+        start,
+        end,
+        updateTooltip
+      });
+      npcRoutes.push(routeLine);
     } catch (err) {
       console.warn('Failed to fetch route:', err);
     }
@@ -74,8 +100,16 @@ async function spawnNPCs() {
 
   npcInterval = setInterval(() => {
     npcTrucks.forEach(truck => {
+      const current = truck.route[truck.index];
       truck.index = (truck.index + 1) % truck.route.length;
-      truck.marker.setLatLng(truck.route[truck.index]);
+      const next = truck.route[truck.index];
+
+      const distance = calculateDistance(current[0], current[1], next[0], next[1]); // in meters
+      const speedMps = distance / 1.5; // assuming interval is 1.5 sec
+      const speedMph = speedMps * 2.23694;
+
+      truck.marker.setLatLng(next);
+      truck.updateTooltip(speedMph);
     });
   }, 1500);
 }
