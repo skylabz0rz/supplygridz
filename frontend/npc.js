@@ -45,12 +45,24 @@ async function fetchRouteSteps(start, end) {
 }
 
 function drawRouteOnMap(steps) {
-  if (!window.map) return;
+  if (!window.map || !steps || !Array.isArray(steps)) {
+    console.warn("Invalid steps or map not initialized", steps);
+    return;
+  }
 
-  const coords = steps.flatMap(step => step.geometry.coordinates.map(([lon, lat]) => [lat, lon]));
+  const coords = steps.flatMap(step =>
+    step.geometry?.coordinates?.map(([lon, lat]) => [lat, lon]) || []
+  );
+
+  if (coords.length === 0) {
+    console.warn("No coordinates found in steps");
+    return;
+  }
+
   const routeLine = L.polyline(coords, { color: 'orange', weight: 4, opacity: 0.8 }).addTo(window.map);
   activeNPCs.push(routeLine);
 }
+
 
 async function generateOneNPC(npcId = 1) {
   const company = getRandomElement(companies).trim();
