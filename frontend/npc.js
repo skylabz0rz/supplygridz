@@ -47,18 +47,6 @@ function getSpeedForRoad(type) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function fetchRouteSteps(start, end) {
-  const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
-  const response = await fetch(url);
-  const contentType = response.headers.get("content-type");
-  if (!response.ok || !contentType.includes("application/json")) {
-    throw new Error(`Invalid response ${response.status}`);
-  }
-  const data = await response.json();
-  if (!data.routes || data.routes.length === 0) throw new Error("No route found");
-  return data.routes[0].legs[0].steps;
-}
-
 async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const start = cities[Math.floor(Math.random() * cities.length)];
@@ -174,8 +162,15 @@ function clearNPCs() {
 export { spawnNPCs, clearNPCs };
 
 function isValidCoord(lat, lon) {
+  // Rough bounding box for continental U.S.
   return lat >= 24.5 && lat <= 49.5 && lon >= -125 && lon <= -66;
 }
+
+async function fetchRouteSteps(start, end) {
+  if (!isValidCoord(start[1], start[0]) || !isValidCoord(end[1], end[0])) {
+    console.warn("Skipping NPC due to out-of-bounds coordinates:", start, end);
+    return null;
+  }
 
   const url = `https://supplygridz.com/osrm/route/v1/driving/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson&steps=true`;
 
@@ -192,6 +187,7 @@ function isValidCoord(lat, lon) {
       leg.steps.forEach(step => {
         steps.push([step.maneuver.location[1], step.maneuver.location[0]]);
       });
+    });
 
     return steps;
 
