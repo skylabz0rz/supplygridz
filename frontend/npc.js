@@ -4,6 +4,7 @@ import { map } from './map.js';
 let npcTrucks = [];
 let npcRoutes = [];
 let npcInterval;
+let spawnInterval;
 
 async function loadTextFile(url) {
   const response = await fetch(url);
@@ -35,40 +36,27 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 async function fetchRoute(start, end) {
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const contentType = response.headers.get("content-type");
+  if (!response.ok || !contentType.includes("application/json")) {
+    throw new Error(`Invalid response ${response.status}`);
+  }
   const data = await response.json();
-  if (!data.routes || data.routes.length === 0) throw new Error('No route found');
+  if (!data.routes || data.routes.length === 0) throw new Error("No route found");
   return decodeGeoJSONRoute(data.routes[0].geometry.coordinates);
 }
 
-async function getValidRoute(cities, companies, usedPairs) {
-  for (let attempts = 0; attempts < 10; attempts++) {
+async function tryGenerateOne(cities, companies, usedPairs, npcIndex) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const start = cities[Math.floor(Math.random() * cities.length)];
     const end = cities[Math.floor(Math.random() * cities.length)];
     if (start.name === end.name || usedPairs.has(`${start.name}->${end.name}`)) continue;
     usedPairs.add(`${start.name}->${end.name}`);
 
+    const company = companies[Math.floor(Math.random() * companies.length)];
+    console.log(`NPC${npcIndex}: ${company} from ${start.name} → ${end.name}`);
+
     try {
       const routeCoords = await fetchRoute(start, end);
-      const company = companies[Math.floor(Math.random() * companies.length)];
-      return { routeCoords, start, end, company };
-    } catch (err) {
-      console.warn("Retrying route:", err.message);
-    }
-  }
-  throw new Error("Failed to find valid route after multiple attempts.");
-}
-
-async function spawnNPCs() {
-  const cityLines = await loadTextFile("cities.txt");
-  const cities = cityLines.map(parseCityLine);
-  const companies = await loadTextFile("companies.txt");
-
-  const usedPairs = new Set();
-
-  for (let i = 0; i < 10; i++) {
-    try {
-      const { routeCoords, start, end, company } = await getValidRoute(cities, companies, usedPairs);
       const progressIndex = Math.floor(routeCoords.length * (Math.random() * 0.8 + 0.1));
       const marker = L.marker(routeCoords[progressIndex], {
         icon: L.icon({
@@ -97,15 +85,34 @@ async function spawnNPCs() {
         marker,
         route: routeCoords,
         index: progressIndex,
-        start,
-        end,
         updateTooltip
       });
       npcRoutes.push(polyline);
+      return;
     } catch (err) {
-      console.warn("Skipped NPC:", err.message);
+      console.warn(`NPC${npcIndex} attempt ${attempt + 1} failed:`, err.message);
     }
   }
+
+  console.warn(`NPC${npcIndex} failed to generate after 3 attempts.`);
+}
+
+async function spawnNPCs() {
+  const cityLines = await loadTextFile("cities.txt");
+  const cities = cityLines.map(parseCityLine);
+  const companies = await loadTextFile("companies.txt");
+  const usedPairs = new Set();
+
+  let npcCount = 0;
+
+  spawnInterval = setInterval(async () => {
+    if (npcCount >= 10) {
+      clearInterval(spawnInterval);
+      return;
+    }
+    await tryGenerateOne(cities, companies, usedPairs, npcCount + 1);
+    npcCount++;
+  }, 800);
 
   npcInterval = setInterval(() => {
     npcTrucks.forEach(truck => {
@@ -129,7 +136,7 @@ function clearNPCs() {
   npcTrucks = [];
   npcRoutes = [];
   clearInterval(npcInterval);
+  clearInterval(spawnInterval);
 }
 
 export { spawnNPCs, clearNPCs };
-
