@@ -42,6 +42,15 @@ html, body {
   align-items: center;
 }
 
+.welcome-box {
+  background: white;
+  padding: 32px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 400px;
+}
+
 #welcome-login-btn {
   font-size: 18px;
   padding: 10px 20px;
@@ -55,6 +64,18 @@ html, body {
   height: 100%;
   padding-top: 60px;
   position: relative;
+}
+
+#sidebar {
+  width: 260px;
+  background: white;
+  padding: 12px;
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
 }
 
 #map {
