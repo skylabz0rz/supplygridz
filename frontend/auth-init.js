@@ -4,8 +4,11 @@ let createAuth0Client;
 let auth0 = null;
 
 const auth0Ready = (async () => {
-  const module = await import('./lib/auth0-spa-js.production.esm.js');
-  createAuth0Client = module.createAuth0Client;
+ 
+ const module = await import('./lib/auth0-spa-js.production.esm.js');
+	console.log("Auth0 Module Keys:", Object.keys(module));  // <-- DEBUG LINE
+	createAuth0Client = module.createAuth0Client;
+
 })();
 
 window.login = async () => {
