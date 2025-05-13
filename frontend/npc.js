@@ -1,36 +1,14 @@
 import { cities } from './cities.js';
 import { companies } from './companies.js';
 
-let npcCount = 1; // Limit to 1 for home screen testing
+let npcCount = 1; // Limit to one NPC for testing
 let activeNPCs = [];
 
-// Utility: Pick random array element
 function getRandomElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-// Utility: Haversine distance between two coordinates
-function getDistanceKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1 * Math.PI / 180) *
-            Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) ** 2;
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
-
-// Fetch route from OSRM
-async function fetchRouteGeometry(start, end) {
-  const maxDistance = 800; // Max NPC trip in km
-  const distance = getDistanceKm(start.lat, start.lon, end.lat, end.lon);
-
-  if (distance > maxDistance) {
-    console.warn("Skipping NPC due to long distance:", distance, start, end);
-    return null;
-  }
-
+async function fetchRouteSteps(start, end) {
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   try {
     const res = await fetch(url);
@@ -41,17 +19,16 @@ async function fetchRouteGeometry(start, end) {
       return null;
     }
 
-    return data.routes[0].geometry;
+    return data.routes[0].legs[0].steps;
   } catch (err) {
     console.error("Error fetching route:", err);
     return null;
   }
 }
 
-// Draw route on Leaflet map
 function drawRouteOnMap(steps) {
   if (!window.map || !steps || !Array.isArray(steps)) {
-    console.warn("Invalid steps or map not initialized", steps);
+    console.warn("Map not initialized or steps invalid", steps);
     return;
   }
 
@@ -60,7 +37,7 @@ function drawRouteOnMap(steps) {
   );
 
   if (coords.length === 0) {
-    console.warn("No coordinates found in steps");
+    console.warn("No coordinates to draw");
     return;
   }
 
@@ -73,8 +50,6 @@ function drawRouteOnMap(steps) {
   activeNPCs.push(routeLine);
 }
 
-
-// Spawn one NPC
 async function generateOneNPC(npcId = 1) {
   const company = getRandomElement(companies).trim();
   const start = getRandomElement(cities);
@@ -84,13 +59,12 @@ async function generateOneNPC(npcId = 1) {
 
   console.log(`NPC${npcId}: ${company} from ${start.name} → ${end.name}`);
 
-  const route = await fetchRouteGeometry(start, end);
-  if (!route) return;
+  const steps = await fetchRouteSteps(start, end);
+  if (!steps) return;
 
-  drawRouteOnMap(route);
+  drawRouteOnMap(steps);
 }
 
-// Exported functions
 export async function spawnNPCs() {
   clearNPCs();
   for (let i = 1; i <= npcCount; i++) {
@@ -99,6 +73,10 @@ export async function spawnNPCs() {
 }
 
 export function clearNPCs() {
-  activeNPCs.forEach(layer => window.map.removeLayer(layer));
+  activeNPCs.forEach(obj => {
+    if (window.map.hasLayer(obj)) {
+      window.map.removeLayer(obj);
+    }
+  });
   activeNPCs = [];
 }
