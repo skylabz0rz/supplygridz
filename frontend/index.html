@@ -96,18 +96,21 @@
 
 <script src="https://cdn.auth0.com/js/auth0/9.19/auth0.min.js"></script>
 <script>
-  const auth0 = new auth0.WebAuth({
-    domain: 'dev-tzh46biettai7rin.us.auth0.com',
-    clientID: 'km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr',
-    redirectUri: window.location.origin,
-    responseType: 'token id_token',
-    scope: 'openid profile email'
-  });
+  window.onload = () => {
+    const auth0Client = new auth0.WebAuth({
+      domain: 'dev-tzh46biettai7rin.us.auth0.com',
+      clientID: 'km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr',
+      redirectUri: window.location.origin,
+      responseType: 'token id_token',
+      scope: 'openid profile email'
+    });
 
-  function login() {
-    auth0.authorize();
-  }
+    window.login = function () {
+      auth0Client.authorize();
+    };
+  };
 </script>
+
 
 </body>
 </html>
