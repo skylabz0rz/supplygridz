@@ -1,3 +1,0 @@
-Download from:
-https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@1.22.0/dist/auth0-spa-js.production.esm.js
-Then place it in this 'lib' folder.
