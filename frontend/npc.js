@@ -59,9 +59,20 @@ function drawRouteOnMap(steps) {
     return;
   }
 
-  const routeLine = L.polyline(coords, { color: 'orange', weight: 4, opacity: 0.8 }).addTo(window.map);
-  activeNPCs.push(routeLine);
+  const routeLine = L.polyline(coords, {
+    color: 'orange',
+    weight: 4,
+    opacity: 0.8
+  });
+
+  if (routeLine && typeof routeLine.addTo === "function") {
+    routeLine.addTo(window.map);
+    activeNPCs.push(routeLine);
+  } else {
+    console.error("routeLine is not a valid Leaflet layer", routeLine);
+  }
 }
+
 
 
 async function generateOneNPC(npcId = 1) {
