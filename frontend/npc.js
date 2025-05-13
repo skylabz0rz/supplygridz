@@ -49,25 +49,30 @@ async function fetchRouteGeometry(start, end) {
 }
 
 // Draw route on Leaflet map
-function drawRouteOnMap(geojson) {
-  if (!window.map || !geojson) {
-    console.warn("Map not ready or no geometry.");
+function drawRouteOnMap(steps) {
+  if (!window.map || !steps || !Array.isArray(steps)) {
+    console.warn("Invalid steps or map not initialized", steps);
     return;
   }
 
-  const layer = L.geoJSON(geojson, {
-    style: {
-      color: 'orange',
-      weight: 4,
-      opacity: 0.8
-    }
+  const coords = steps.flatMap(step =>
+    step.geometry?.coordinates?.map(([lon, lat]) => [lat, lon]) || []
+  );
+
+  if (coords.length === 0) {
+    console.warn("No coordinates found in steps");
+    return;
+  }
+
+  const routeLine = L.polyline(coords, {
+    color: 'orange',
+    weight: 4,
+    opacity: 0.8
   }).addTo(window.map);
 
-  activeNPCs.push(layer);
-
-  // Fit map to route bounds (optional for home screen)
-  window.map.fitBounds(layer.getBounds());
+  activeNPCs.push(routeLine);
 }
+
 
 // Spawn one NPC
 async function generateOneNPC(npcId = 1) {
