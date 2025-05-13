@@ -57,12 +57,19 @@ window.addEventListener('DOMContentLoaded', () => {
         window.map.invalidateSize();
       }
 
-      console.log("Spawning NPCs...");
-      spawnNPCs();
+      // Wait a moment before loading NPCs
+      setTimeout(() => {
+        console.log("Spawning NPCs...");
+        spawnNPCs();
+
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) overlay.style.display = "none";
+      }, 500); // let tiles stabilize first
 
     } catch (e) {
       console.error("Leaflet or NPC startup failed:", e);
     }
   }, 300);
 });
+
 
