@@ -7,7 +7,7 @@ const auth0Ready = (async () => {
  
  const module = await import('./lib/auth0-spa-js.production.esm.js');
 	console.log("Auth0 Module Keys:", Object.keys(module));  // <-- DEBUG LINE
-	createAuth0Client = module.createAuth0Client;
+	createAuth0Client = module.default;
 
 })();
 
