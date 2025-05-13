@@ -63,17 +63,17 @@
   <div id="map"></div>
 </div>
 
-<!-- JS Libraries -->
+<!-- External Libraries -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Module Scripts -->
+<!-- Your Game Logic (modularized) -->
 <script type="module" src="map.js"></script>
 <script type="module" src="npc.js"></script>
 <script type="module" src="auth.js"></script>
 
-<!-- Sidebar Tabs & HQ (non-module) -->
+<!-- Non-module functions -->
 <script>
   function showTab(tabId) {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
