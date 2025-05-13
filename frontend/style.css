@@ -131,10 +131,6 @@ html, body {
   max-width: 450px;
 }
 
-#auth0-login-container h1 {
-  margin-bottom: 12px;
-}
-
 #auth0-login-container p {
   margin-bottom: 24px;
   font-size: 16px;
@@ -155,4 +151,12 @@ html, body {
 
 #topbar, #sidebar {
   display: none;
+}
+
+#auth0-login-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
 }

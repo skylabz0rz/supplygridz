@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.auth0.com/js/lock/12.4/lock.min.js"></script>
   <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 </head>
 <body>
@@ -50,6 +51,7 @@
 <script type="module" src="map.js"></script>
 <script type="module" src="npc.js"></script>
 <script type="module" src="auth.js"></script>
+<div id="auth0-login-container"></div>
 
 <script>
   function showTab(tabId) {
@@ -73,6 +75,28 @@
       .bindPopup("Road Headquarters (holds 5 road vehicles)")
       .openPopup();
   }
+</script>
+<script>
+  const lock = new Auth0Lock('km3Gmbm6K9aeA3uFQh4Wlw3FSUjhZwr', 'dev-tzh46biettai7rin.us.auth0.com', {
+    container: 'auth0-login-container',
+    auth: {
+      redirectUrl: window.location.origin,
+      responseType: 'token id_token',
+      params: {
+        scope: 'openid profile email'
+      }
+    },
+    theme: {
+      logo: 'https://supplygridz.com/logo.png', // optional
+      primaryColor: '#eb5424'
+    },
+    languageDictionary: {
+      title: "Welcome to SupplyGridz"
+    }
+  });
+
+  // Show the login form immediately
+  lock.show();
 </script>
 
 </body>
