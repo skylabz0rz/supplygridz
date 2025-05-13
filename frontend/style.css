@@ -13,7 +13,7 @@ html, body {
 }
 
 #login-panel {
-  width: 40%;
+  width: 20%;
   padding: 2rem;
   display: flex;
   flex-direction: column;
