@@ -10,7 +10,7 @@
 <body>
 
 <!-- Topbar -->
-<div id="topbar">
+<div id="topbar" class="hidden">
   <div style="font-weight: bold;">SupplyGridz</div>
   <div>
     <span id="user-display"></span>
@@ -30,7 +30,7 @@
 
 <!-- Main App Container -->
 <div id="app-container">
-  <div id="sidebar">
+  <div id="sidebar" class="hidden">
     <h2>Command Center</h2>
     <div class="tabs">
       <button class="tab active" onclick="showTab('structures')">Structures</button>
@@ -60,20 +60,17 @@
     </div>
   </div>
 
-  <div id="map"></div>
+  <div id="map" class="disabled"></div>
 </div>
 
-<!-- External Libraries -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Your Game Logic (modularized) -->
 <script type="module" src="map.js"></script>
 <script type="module" src="npc.js"></script>
 <script type="module" src="auth.js"></script>
 
-<!-- Non-module functions -->
 <script>
   function showTab(tabId) {
     document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
@@ -97,6 +94,5 @@
       .openPopup();
   }
 </script>
-
 </body>
 </html>
