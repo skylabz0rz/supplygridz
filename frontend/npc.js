@@ -27,7 +27,7 @@ async function fetchRouteSteps(start, end) {
     return null;
   }
 
- const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
+  const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   try {
     const res = await fetch(url);
     const data = await res.json();
