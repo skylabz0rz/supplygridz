@@ -37,3 +37,4 @@ window.login = async () => {
 };
 
 window.spawnNPCs = spawnNPCs;
+ 
