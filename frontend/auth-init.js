@@ -44,8 +44,14 @@ window.addEventListener('DOMContentLoaded', () => {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(window.map);
+
+    // ✅ Force refresh after slight delay to ensure container has correct dimensions
+    setTimeout(() => {
+      window.map.invalidateSize();
+    }, 300);
   }
 
   spawnNPCs();
 });
+
 
