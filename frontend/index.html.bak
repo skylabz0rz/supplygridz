@@ -2,25 +2,32 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SupplyGridz</title>
+  <title>SupplyGridz Vector Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 </head>
 <body>
 
-<!-- Welcome Prompt -->
-<div id="welcome-screen">
-  <div class="welcome-box">
-    <h1>Welcome to SupplyGridz</h1>
-    <p>Start your logistics empire. Log in to manage your fleet, contracts, and budget.</p>
-    <button id="welcome-login-btn">Log In</button>
-    <button onclick="window.location.href='/about.html'">About</button>
+<!-- Topbar -->
+<div id="topbar" class="hidden">
+  <div style="font-weight: bold;">SupplyGridz</div>
+  <div>
+    <span id="user-display"></span>
+    <button id="login-btn">Log In</button>
+    <button id="logout-btn" style="display: none;">Log Out</button>
   </div>
 </div>
 
-<!-- Main Map & Sidebar -->
+<!-- Auth0 Login Prompt -->
+<div id="auth0-login-container">
+  <h1>Welcome to SupplyGridz</h1>
+  <p>Start your logistics empire. Log in to manage your fleet, contracts, and budget.</p>
+  <button id="launch-auth0" onclick="login()">Log In</button>
+  <button onclick="window.location.href='/about.html'">About</button>
+</div>
+
+<!-- Main App Container -->
 <div id="app-container">
   <div id="sidebar" class="hidden">
     <h2>Command Center</h2>
@@ -55,9 +62,10 @@
   <div id="map" class="disabled"></div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script type="module" src="map.js"></script>
 <script type="module" src="npc.js"></script>
 <script type="module" src="auth.js"></script>
@@ -85,6 +93,24 @@
       .openPopup();
   }
 </script>
+
+<script src="https://cdn.auth0.com/js/auth0/9.19/auth0.min.js"></script>
+<script>
+  window.onload = () => {
+    const auth0Client = new auth0.WebAuth({
+      domain: 'dev-tzh46biettai7rin.us.auth0.com',
+      clientID: 'km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr',
+      redirectUri: window.location.origin,
+      responseType: 'token id_token',
+      scope: 'openid profile email'
+    });
+
+    window.login = function () {
+      auth0Client.authorize();
+    };
+  };
+</script>
+
 
 </body>
 </html>
