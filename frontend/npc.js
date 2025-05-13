@@ -192,7 +192,6 @@ function isValidCoord(lat, lon) {
       leg.steps.forEach(step => {
         steps.push([step.maneuver.location[1], step.maneuver.location[0]]);
       });
-    });
 
     return steps;
 
