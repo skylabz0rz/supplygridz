@@ -126,7 +126,7 @@ async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
 
   console.warn(`NPC${npcIndex} failed to generate after 3 attempts.`);
 }
-
+ 
 async function spawnNPCs() {
   const cityLines = await loadTextFile("cities.txt");
   const cities = cityLines.map(parseCityLine);
