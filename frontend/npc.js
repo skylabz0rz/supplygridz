@@ -180,6 +180,7 @@ async function fetchRouteSteps(start, end) {
 
     if (!data.routes || !data.routes[0]) {
       throw new Error("No routes returned by OSRM");
+	  console.warn("Bad OSRM route for", start, end, JSON.stringify(data));
     }
 
     let steps = [];
