@@ -34,17 +34,35 @@ window.login = async () => {
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM fully loaded");
+
   setTimeout(() => {
-    if (!window.map) {
-      window.map = L.map('map').setView([39.8283, -98.5795], 4);
+    try {
+      console.log("Initializing Leaflet map...");
+      if (!window.map) {
+        const mapContainer = document.getElementById("map");
+        if (!mapContainer) {
+          console.error("Map container missing");
+          return;
+        }
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(window.map);
+        window.map = L.map('map').setView([39.8283, -98.5795], 4);
 
-      window.map.invalidateSize();
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(window.map);
+
+        console.log("Leaflet map initialized. Forcing size refresh...");
+        window.map.invalidateSize();
+      }
+
+      console.log("Spawning NPCs...");
       spawnNPCs();
+
+    } catch (e) {
+      console.error("Leaflet or NPC startup failed:", e);
     }
   }, 300);
 });
+
