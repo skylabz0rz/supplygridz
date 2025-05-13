@@ -57,6 +57,31 @@ async function fetchRouteSteps(start, end) {
     console.warn("Skipping NPC due to out-of-bounds coordinates:", start, end);
     return null;
   }
+
+  const url = `https://supplygridz.com/osrm/route/v1/driving/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson&steps=true`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data.routes || !data.routes[0]) {
+      throw new Error("No routes returned by OSRM");
+    }
+
+    let steps = [];
+    data.routes[0].legs.forEach(leg => {
+      leg.steps.forEach(step => {
+        steps.push([step.maneuver.location[1], step.maneuver.location[0]]);
+      });
+    });
+
+    return steps;
+
+  } catch (err) {
+    console.warn("fetchRouteSteps error:", err.message);
+    return null;
+  }
+}
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   const response = await fetch(url);
   const contentType = response.headers.get("content-type");
