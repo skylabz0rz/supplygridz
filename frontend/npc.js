@@ -17,7 +17,7 @@ function parseCityLine(line) {
 }
 
 function decodeGeoJSONRoute(coords) {
-  return coords.map(pair => [pair[1], pair[0]]); // flip lon/lat to lat/lon for Leaflet
+  return coords.map(pair => [pair[1], pair[0]]);
 }
 
 async function fetchRoute(start, end) {
@@ -88,10 +88,4 @@ function clearNPCs() {
   clearInterval(npcInterval);
 }
 
-// Instead of this:
-window.spawnNPCs = spawnNPCs;
-window.clearNPCs = clearNPCs;
-
-// Do this:
 export { spawnNPCs, clearNPCs };
-
