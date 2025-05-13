@@ -16,11 +16,16 @@ function parseCityLine(line) {
   return { name, lat: parseFloat(lat), lon: parseFloat(lon) };
 }
 
-function interpolateCoords(start, end, t) {
-  return {
-    lat: start.lat + (end.lat - start.lat) * t,
-    lon: start.lon + (end.lon - start.lon) * t
-  };
+function decodeGeoJSONRoute(coords) {
+  return coords.map(pair => [pair[1], pair[0]]); // flip lon/lat to lat/lon for Leaflet
+}
+
+async function fetchRoute(start, end) {
+  const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
+  const response = await fetch(url);
+  const data = await response.json();
+  if (data.code !== 'Ok') throw new Error('Route error');
+  return decodeGeoJSONRoute(data.routes[0].geometry.coordinates);
 }
 
 async function spawnNPCs() {
@@ -30,7 +35,7 @@ async function spawnNPCs() {
 
   const usedPairs = new Set();
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     let start, end;
     do {
       start = cities[Math.floor(Math.random() * cities.length)];
@@ -39,42 +44,40 @@ async function spawnNPCs() {
     usedPairs.add(`${start.name}->${end.name}`);
 
     const company = companies[Math.floor(Math.random() * companies.length)];
-    const progress = Math.random() * 0.8 + 0.1;
-    const pos = interpolateCoords(start, end, progress);
 
-    const icon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
-    });
+    try {
+      const routeCoords = await fetchRoute(start, end);
+      const progressIndex = Math.floor(routeCoords.length * (Math.random() * 0.8 + 0.1));
+      const marker = L.marker(routeCoords[progressIndex], {
+        icon: L.icon({
+          iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995476.png',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        })
+      }).addTo(map).bindTooltip(`${company}<br>${start.name} → ${end.name}`, {
+        permanent: true, direction: 'right', offset: [10, 0]
+      });
 
-    const label = `${company}<br>${start.name} → ${end.name}`;
-    const marker = L.marker([pos.lat, pos.lon], { icon })
-      .addTo(map)
-      .bindTooltip(label, { permanent: true, direction: 'right', offset: [10, 0] });
-
-    const routeLine = L.polyline(
-      [[start.lat, start.lon], [end.lat, end.lon]],
-      {
+      const polyline = L.polyline(routeCoords, {
         color: '#888',
         weight: 2,
-        opacity: 0.4,
-        dashArray: '5,5'
-      }
-    ).addTo(map);
+        opacity: 0.3,
+        dashArray: '4,6'
+      }).addTo(map);
 
-    npcTrucks.push({ marker, start, end, t: progress });
-    npcRoutes.push(routeLine);
+      npcTrucks.push({ marker, route: routeCoords, index: progressIndex });
+      npcRoutes.push(polyline);
+    } catch (err) {
+      console.warn('Failed to fetch route:', err);
+    }
   }
 
   npcInterval = setInterval(() => {
     npcTrucks.forEach(truck => {
-      truck.t += 0.002;
-      if (truck.t > 1) truck.t = 0.1;
-      const newPos = interpolateCoords(truck.start, truck.end, truck.t);
-      truck.marker.setLatLng([newPos.lat, newPos.lon]);
+      truck.index = (truck.index + 1) % truck.route.length;
+      truck.marker.setLatLng(truck.route[truck.index]);
     });
-  }, 2000);
+  }, 1500);
 }
 
 function clearNPCs() {
