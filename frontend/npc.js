@@ -88,5 +88,10 @@ function clearNPCs() {
   clearInterval(npcInterval);
 }
 
+// Instead of this:
 window.spawnNPCs = spawnNPCs;
 window.clearNPCs = clearNPCs;
+
+// Do this:
+export { spawnNPCs, clearNPCs };
+

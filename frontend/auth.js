@@ -1,5 +1,6 @@
 
 import { map } from './map.js';
+import { spawnNPCs, clearNPCs } from './npc.js';
 
 let auth0Client;
 
@@ -41,7 +42,7 @@ async function updateUI() {
     mapDiv.classList.remove("disabled");
     document.getElementById("welcome-screen").style.display = "none";
 
-    if (window.clearNPCs) window.clearNPCs();
+    clearNPCs();
   } else {
     document.getElementById("user-display").innerText = "";
     document.getElementById("login-btn").style.display = "inline-block";
@@ -52,8 +53,6 @@ async function updateUI() {
     mapDiv.classList.add("disabled");
     document.getElementById("welcome-screen").style.display = "flex";
 
-    if (window.spawnNPCs) window.spawnNPCs();
+    spawnNPCs();
   }
 }
-
-
