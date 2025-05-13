@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SupplyGridz - Login</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.ico" />
 </head>
@@ -16,9 +17,13 @@
     </div>
     <div id="login-map">
       <div id="map"></div>
+	  <div id="loading-overlay">
+		<div class="radar-spinner"></div>
+		</div>
     </div>
   </div>
-
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="auth-init.js"></script>
   <script type="module" src="auth-init.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
