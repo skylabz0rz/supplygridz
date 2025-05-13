@@ -53,23 +53,27 @@ window.addEventListener('DOMContentLoaded', () => {
           attribution: '&copy; OpenStreetMap contributors'
         }).addTo(window.map);
 
-        console.log("Leaflet map initialized. Forcing size refresh...");
-        window.map.invalidateSize();
+        console.log("Leaflet map initialized.");
       }
 
-      // Wait a moment before loading NPCs
+      // Let the map stabilize a bit
       setTimeout(() => {
+        if (window.map) window.map.invalidateSize(); // Force layout fix
+
         console.log("Spawning NPCs...");
         spawnNPCs();
 
+        // Hide loading overlay after NPCs start
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.style.display = "none";
-      }, 500); // let tiles stabilize first
+
+      }, 500); // delay allows tile rendering to complete
 
     } catch (e) {
       console.error("Leaflet or NPC startup failed:", e);
     }
   }, 300);
 });
+
 
 
