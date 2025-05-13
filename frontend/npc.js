@@ -177,12 +177,6 @@ function isValidCoord(lat, lon) {
   return lat >= 24.5 && lat <= 49.5 && lon >= -125 && lon <= -66;
 }
 
-async function fetchRouteSteps(start, end) {
-  if (!isValidCoord(start[1], start[0]) || !isValidCoord(end[1], end[0])) {
-    console.warn("Skipping NPC due to out-of-bounds coordinates:", start, end);
-    return null;
-  }
-
   const url = `https://supplygridz.com/osrm/route/v1/driving/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson&steps=true`;
 
   try {
