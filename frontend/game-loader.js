@@ -1,1 +1,1 @@
-console.log("Game UI loaded (placeholder).");
+console.log('Game UI loaded');

@@ -4,11 +4,9 @@ let createAuth0Client;
 let auth0 = null;
 
 const auth0Ready = (async () => {
- 
- const module = await import('./lib/auth0-spa-js.production.esm.js');
-	console.log("Auth0 Module Keys:", Object.keys(module));  // <-- DEBUG LINE
-	createAuth0Client = module.default;
-
+  const module = await import('./lib/auth0-spa-js.production.esm.js');
+  console.log("Auth0 Module Keys:", Object.keys(module));
+  createAuth0Client = module.default;
 })();
 
 window.login = async () => {
@@ -31,12 +29,22 @@ window.login = async () => {
   if (isAuthenticated) {
     const user = await auth0.getUser();
     console.log("Logged in user:", user);
-    // You could now import the game UI here
     import('./game-loader.js');
-  } else {
-    console.warn("Login failed. Running in guest mode.");
-    spawnNPCs();
   }
 };
 
-window.spawnNPCs = spawnNPCs;
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (!window.map) {
+      window.map = L.map('map').setView([39.8283, -98.5795], 4);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(window.map);
+
+      window.map.invalidateSize();
+      spawnNPCs();
+    }
+  }, 300);
+});

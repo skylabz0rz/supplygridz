@@ -8,21 +8,18 @@
   <link rel="icon" href="favicon.ico" />
 </head>
 <body>
-
-<div id="login-container">
-  <div id="login-panel">
-    <h1>Welcome to SupplyGridz</h1>
-    <p>Start your logistics empire. Log in to manage your fleet, contracts, and more.</p>
-    <button id="login-button" onclick="login()">Log In</button>
+  <div id="login-container">
+    <div id="login-panel">
+      <h1>Welcome to SupplyGridz</h1>
+      <p>Start your logistics empire. Log in to manage your fleet, contracts, and more.</p>
+      <button id="login-button" onclick="login()">Log In</button>
+    </div>
+    <div id="login-map">
+      <div id="map"></div>
+    </div>
   </div>
-  <div id="login-map">
-    <div id="map"></div>
-  </div>
-</div>
 
-<script type="module" src="auth-init.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module" src="npc.js"></script>
-
+  <script type="module" src="auth-init.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
