@@ -1,15 +1,37 @@
 import { spawnNPCs, clearNPCs } from './npc.js';
+import createAuth0Client from '@auth0/auth0-spa-js';
 
-let auth0Client = null;
+let auth0 = null;
+let isAuthenticated = false;
 
-(async () => {
+export async function initAuth() {
   try {
-    auth0Client = await createAuth0Client({
+    auth0 = await createAuth0Client({
       domain: "dev-tzh46biettai7rin.us.auth0.com",
-      client_id: "km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr",
-      audience: "https://supplygridz.com/api",
-      cacheLocation: 'localstorage'
+      client_id: "km3gCmbm6K9aeA3uFQh4W1w3FSUjhZwr",
+      redirect_uri: window.location.origin,
+      cacheLocation: 'localstorage',
+      useRefreshTokens: true
     });
+
+    isAuthenticated = await auth0.isAuthenticated();
+
+    if (!isAuthenticated) {
+      spawnNPCs();  // No login? Still show NPCs.
+    } else {
+      const user = await auth0.getUser();
+      console.log("Logged in user:", user);
+      clearNPCs();  // Optionally remove NPCs if player is in control
+    }
+
+  } catch (error) {
+    console.warn("Auth0 failed or offline. Defaulting to guest mode.", error);
+    spawnNPCs();  // Gracefully fallback
+  }
+}
+
+export { auth0, isAuthenticated };
+
 
     if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
       await auth0Client.handleRedirectCallback();
