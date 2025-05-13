@@ -1,199 +1,80 @@
-import { map } from './map.js';
 
-let npcTrucks = [];
-let npcRoutes = [];
-let npcInterval;
-let spawnInterval;
+import cities from './cities.txt';
+import companies from './companies.txt';
 
-const roadSpeedLimits = {
-  motorway: [65, 80],
-  trunk: [55, 70],
-  primary: [45, 60],
-  secondary: [35, 50],
-  residential: [25, 35],
-  unknown: [40, 55]
-};
+let npcCount = 1;  // Reduced to 1 for home screen testing
+let activeNPCs = [];
 
-async function loadTextFile(url) {
-  const response = await fetch(url);
-  const text = await response.text();
-  return text.trim().split('\n');
+function getRandomElement(array) {
+  return array[Math.floor(Math.random() * array.length)];
 }
 
-function parseCityLine(line) {
-  const [name, lat, lon] = line.split(',');
-  return { name, lat: parseFloat(lat), lon: parseFloat(lon) };
-}
-
-function decodeGeo(step) {
-  const coords = step.geometry.coordinates.map(pair => [pair[1], pair[0]]);
-  return coords;
-}
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3;
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(Δφ / 2) ** 2 +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-function getSpeedForRoad(type) {
-  const [min, max] = roadSpeedLimits[type] || roadSpeedLimits["unknown"];
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-async function generateOneNPC(cities, companies, usedPairs, npcIndex) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const start = cities[Math.floor(Math.random() * cities.length)];
-    const end = cities[Math.floor(Math.random() * cities.length)];
-    if (start.name === end.name || usedPairs.has(`${start.name}->${end.name}`)) continue;
-    usedPairs.add(`${start.name}->${end.name}`);
-
-    const company = companies[Math.floor(Math.random() * companies.length)];
-    console.log(`NPC${npcIndex}: ${company} from ${start.name} → ${end.name}`);
-
-    try {
-      const steps = await fetchRouteSteps(start, end);
-      const route = [];
-
-      steps.forEach(step => {
-        const coords = decodeGeo(step);
-        const roadClass = step.maneuver?.modifier || "unknown";
-        const roadName = step.name || "Unnamed Road";
-        const baseSpeed = getSpeedForRoad(roadClass);
-        coords.forEach(coord => {
-          route.push({
-            latlng: coord,
-            baseSpeed,
-            road: roadName
-          });
-        });
-      });
-
-      const startIdx = Math.floor(route.length * (Math.random() * 0.8 + 0.1));
-      const marker = L.marker(route[startIdx].latlng, {
-        icon: L.icon({
-          iconUrl: 'https://cdn-icons-png.flaticon.com/512/8154/8154294.png',  // truck icon
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
-        })
-      }).addTo(map);
-
-      const routeLine = L.polyline(route.map(r => r.latlng), {
-        color: '#444',
-        weight: 2,
-        opacity: 0.5,
-        dashArray: '4,6'
-      }).addTo(map);
-
-      const updateTooltip = (speed, road) => {
-        marker.setTooltipContent(`${company}<br>${start.name} → ${end.name}<br>${road}<br>Speed: ${speed.toFixed(1)} mph`);
-      };
-
-      marker.bindTooltip('', {
-        permanent: true, direction: 'right', offset: [10, 0]
-      });
-
-      npcTrucks.push({
-        marker,
-        route,
-        index: startIdx,
-        updateTooltip
-      });
-      npcRoutes.push(routeLine);
-      return;
-    } catch (err) {
-      console.warn(`NPC${npcIndex} attempt ${attempt + 1} failed:`, err.message);
-    }
-  }
-
-  console.warn(`NPC${npcIndex} failed to generate after 3 attempts.`);
-}
- 
-async function spawnNPCs() {
-  const cityLines = await loadTextFile("cities.txt");
-  const cities = cityLines.map(parseCityLine);
-  const companies = await loadTextFile("companies.txt");
-  const usedPairs = new Set();
-
-  let npcCount = 0;
-
-  spawnInterval = setInterval(async () => {
-    if (npcCount >= 20) {
-      clearInterval(spawnInterval);
-      return;
-    }
-    await generateOneNPC(cities, companies, usedPairs, npcCount + 1);
-    npcCount++;
-  }, 400);
-
-  npcInterval = setInterval(() => {
-    npcTrucks.forEach(truck => {
-      const current = truck.route[truck.index];
-      const nextIndex = (truck.index + 1) % truck.route.length;
-      const next = truck.route[nextIndex];
-
-      const distance = calculateDistance(current.latlng[0], current.latlng[1], next.latlng[0], next.latlng[1]);
-      let jitter = Math.floor(Math.random() * 7) - 3; // -3 to +3
-      let speed = next.baseSpeed + jitter;
-      if (speed < 5) speed = 5;
-
-      truck.marker.setLatLng(next.latlng);
-      truck.index = nextIndex;
-      truck.updateTooltip(speed, next.road);
-    });
-  }, 1500);
-}
-
-function clearNPCs() {
-  npcTrucks.forEach(truck => map.removeLayer(truck.marker));
-  npcRoutes.forEach(line => map.removeLayer(line));
-  npcTrucks = [];
-  npcRoutes = [];
-  clearInterval(npcInterval);
-  clearInterval(spawnInterval);
-}
-
-export { spawnNPCs, clearNPCs };
-
-function isValidCoord(lat, lon) {
-  // Rough bounding box for continental U.S.
-  return lat >= 24.5 && lat <= 49.5 && lon >= -125 && lon <= -66;
+function getDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) *
+            Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2)**2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
 async function fetchRouteSteps(start, end) {
-  if (!isValidCoord(start[1], start[0]) || !isValidCoord(end[1], end[0])) {
-    console.warn("Skipping NPC due to out-of-bounds coordinates:", start, end);
+  const maxDistance = 800;
+  const distance = getDistanceKm(start.lat, start.lon, end.lat, end.lon);
+
+  if (distance > maxDistance) {
+    console.warn("Skipping NPC due to long distance:", distance, start, end);
     return null;
   }
 
-  const url = `https://supplygridz.com/osrm/route/v1/driving/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson&steps=true`;
-
+  const url = `https://supplygridz.com/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   try {
-    const response = await fetch(url);
-    const data = await response.json();
+    const res = await fetch(url);
+    const data = await res.json();
 
-    if (!data.routes || !data.routes[0]) {
-      throw new Error("No routes returned by OSRM");
-	  console.warn("Bad OSRM route for", start, end, JSON.stringify(data));
+    if (!data || !data.routes || !data.routes[0]) {
+      console.warn("Bad route data:", data);
+      return null;
     }
 
-    let steps = [];
-    data.routes[0].legs.forEach(leg => {
-      leg.steps.forEach(step => {
-        steps.push([step.maneuver.location[1], step.maneuver.location[0]]);
-      });
-    });
-
-    return steps;
-
+    return data.routes[0].legs[0].steps;
   } catch (err) {
-    console.warn("fetchRouteSteps error:", err.message);
+    console.error("Error fetching route:", err);
     return null;
   }
+}
+
+function drawRouteOnMap(steps) {
+  if (!window.map) return;
+
+  const coords = steps.flatMap(step => step.geometry.coordinates.map(([lon, lat]) => [lat, lon]));
+  const routeLine = L.polyline(coords, { color: 'orange', weight: 4, opacity: 0.8 }).addTo(window.map);
+  activeNPCs.push(routeLine);
+}
+
+async function generateOneNPC(npcId = 1) {
+  const company = getRandomElement(companies).trim();
+  const start = getRandomElement(cities);
+  const end = getRandomElement(cities);
+
+  if (start.name === end.name) return;
+
+  console.log(`NPC${npcId}: ${company} from ${start.name} → ${end.name}`);
+
+  const steps = await fetchRouteSteps(start, end);
+  if (!steps) return;
+
+  drawRouteOnMap(steps);
+}
+
+export async function spawnNPCs() {
+  clearNPCs();
+  for (let i = 1; i <= npcCount; i++) {
+    await generateOneNPC(i);
+  }
+}
+
+export function clearNPCs() {
+  activeNPCs.forEach(obj => window.map.removeLayer(obj));
+  activeNPCs = [];
 }
