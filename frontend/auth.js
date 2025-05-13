@@ -31,18 +31,25 @@ async function updateUI() {
     document.getElementById("user-display").innerText = `Logged in as: ${user.name}`;
     document.getElementById("login-btn").style.display = "none";
     document.getElementById("logout-btn").style.display = "inline-block";
-    document.getElementById("welcome-screen").style.display = "none";
-    document.getElementById("app-container").style.display = "flex";
 
-    if (window.clearNPCs) window.clearNPCs(); // remove NPC trucks
-    // TODO: load user-specific vehicles here
+    document.getElementById("topbar").classList.remove("hidden");
+    document.getElementById("sidebar").classList.remove("hidden");
+    document.getElementById("welcome-screen").style.display = "none";
+    document.getElementById("map").classList.remove("disabled");
+
+    if (window.clearNPCs) window.clearNPCs();
+    // TODO: load real user vehicles
   } else {
     document.getElementById("user-display").innerText = "";
     document.getElementById("login-btn").style.display = "inline-block";
     document.getElementById("logout-btn").style.display = "none";
-    document.getElementById("welcome-screen").style.display = "flex";
-    document.getElementById("app-container").style.display = "flex";
 
-    if (window.spawnNPCs) window.spawnNPCs(); // create NPC trucks
+    document.getElementById("topbar").classList.add("hidden");
+    document.getElementById("sidebar").classList.add("hidden");
+    document.getElementById("welcome-screen").style.display = "flex";
+    document.getElementById("map").classList.add("disabled");
+
+    if (window.spawnNPCs) window.spawnNPCs();
   }
 }
+
