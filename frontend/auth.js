@@ -14,12 +14,14 @@ let isAuthenticated = false;
 export async function initAuth() {
   try {
     auth0 = await createAuth0Client({
-      domain: "dev-tzh46biettai7rin.us.auth0.com",
-      client_id: "km3gCmbm6K9aeA3uFQh4W1w3FSUjhZwr",
-      redirect_uri: window.location.origin,
-      cacheLocation: 'localstorage',
-      useRefreshTokens: true
-    });
+	domain: "dev-tzh46biettai7rin.us.auth0.com",
+	client_id: "km3gCmbm6K9aeA3uFQh4W1w3FSUjhZwr",
+	redirect_uri: window.location.origin,
+	cacheLocation: 'localstorage',
+	useRefreshTokens: true
+	});
+
+	bindAuthButtons();  // ✅ Now it's called after auth0 is ready
 
     if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
       await auth0.handleRedirectCallback();
@@ -36,7 +38,7 @@ export async function initAuth() {
       spawnNPCs();
     }
 
-    updateUI();
+	updateUI();
 
   } catch (err) {
     console.warn("Auth0 unavailable. Simulating logged-out state.");
@@ -77,10 +79,17 @@ async function updateUI(authAvailable = true) {
 }
 
 // Button listeners (bind once DOM is ready)
-window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("login-btn").onclick = () => auth0.loginWithRedirect();
-  document.getElementById("logout-btn").onclick = () => auth0.logout({ returnTo: window.location.origin });
-  document.getElementById("welcome-login-btn").onclick = () => auth0.loginWithRedirect();
-});
+function bindAuthButtons() {
+  document.getElementById("login-btn").onclick = () => {
+    if (auth0) auth0.loginWithRedirect();
+  };
+  document.getElementById("logout-btn").onclick = () => {
+    if (auth0) auth0.logout({ returnTo: window.location.origin });
+  };
+  document.getElementById("welcome-login-btn").onclick = () => {
+    if (auth0) auth0.loginWithRedirect();
+  };
+}
+
 
 export { auth0, isAuthenticated };
