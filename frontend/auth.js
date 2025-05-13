@@ -2,26 +2,27 @@ import { spawnNPCs, clearNPCs } from './npc.js';
 
 let createAuth0Client;
 
-(async () => {
+const auth0Ready = (async () => {
   const module = await import('./lib/auth0-spa-js.production.esm.js');
   createAuth0Client = module.createAuth0Client;
 })();
-
 
 let auth0 = null;
 let isAuthenticated = false;
 
 export async function initAuth() {
   try {
-    auth0 = await createAuth0Client({
-	domain: "dev-tzh46biettai7rin.us.auth0.com",
-	client_id: "km3gCmbm6K9aeA3uFQh4W1w3FSUjhZwr",
-	redirect_uri: window.location.origin,
-	cacheLocation: 'localstorage',
-	useRefreshTokens: true
-	});
+    await auth0Ready;  // ✅ Wait until module is fully imported
 
-	bindAuthButtons();  // ✅ Now it's called after auth0 is ready
+    auth0 = await createAuth0Client({
+      domain: "dev-tzh46biettai7rin.us.auth0.com",
+      client_id: "km3gCmbm6K9aeA3uFQh4W1w3FSUjhZwr",
+      redirect_uri: window.location.origin,
+      cacheLocation: 'localstorage',
+      useRefreshTokens: true
+    });
+
+    bindAuthButtons();
 
     if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
       await auth0.handleRedirectCallback();
@@ -38,7 +39,7 @@ export async function initAuth() {
       spawnNPCs();
     }
 
-	updateUI();
+    updateUI();
 
   } catch (err) {
     console.warn("Auth0 unavailable. Simulating logged-out state.");
@@ -78,7 +79,6 @@ async function updateUI(authAvailable = true) {
   }
 }
 
-// Button listeners (bind once DOM is ready)
 function bindAuthButtons() {
   document.getElementById("login-btn").onclick = () => {
     if (auth0) auth0.loginWithRedirect();
@@ -90,6 +90,5 @@ function bindAuthButtons() {
     if (auth0) auth0.loginWithRedirect();
   };
 }
-
 
 export { auth0, isAuthenticated };
