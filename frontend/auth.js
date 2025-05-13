@@ -1,5 +1,12 @@
 import { spawnNPCs, clearNPCs } from './npc.js';
-const { createAuth0Client } = await import('./lib/auth0-spa-js.production.esm.js');
+
+let createAuth0Client;
+
+(async () => {
+  const module = await import('./lib/auth0-spa-js.production.esm.js');
+  createAuth0Client = module.createAuth0Client;
+})();
+
 
 let auth0 = null;
 let isAuthenticated = false;

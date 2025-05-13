@@ -72,7 +72,9 @@
 
 <script type="module">
   import { initAuth } from './auth.js';
-  initAuth();  // This starts login + NPC logic
+  window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(initAuth, 100); // small delay to allow dynamic import to complete
+  });
 </script>
 
 <script>
