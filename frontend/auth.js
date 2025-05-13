@@ -14,70 +14,66 @@ export async function initAuth() {
       useRefreshTokens: true
     });
 
-    isAuthenticated = await auth0.isAuthenticated();
-
-    if (!isAuthenticated) {
-      spawnNPCs();  // No login? Still show NPCs.
-    } else {
-      const user = await auth0.getUser();
-      console.log("Logged in user:", user);
-      clearNPCs();  // Optionally remove NPCs if player is in control
-    }
-
-  } catch (error) {
-    console.warn("Auth0 failed or offline. Defaulting to guest mode.", error);
-    spawnNPCs();  // Gracefully fallback
-  }
-}
-
-export { auth0, isAuthenticated };
-
-
     if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-      await auth0Client.handleRedirectCallback();
+      await auth0.handleRedirectCallback();
       window.history.replaceState({}, document.title, "/");
     }
 
-    document.getElementById("login-btn").onclick = () => auth0Client.loginWithRedirect();
-    document.getElementById("logout-btn").onclick = () => auth0Client.logout({ returnTo: window.location.origin });
-    document.getElementById("welcome-login-btn").onclick = () => auth0Client.loginWithRedirect();
+    isAuthenticated = await auth0.isAuthenticated();
+
+    if (isAuthenticated) {
+      const user = await auth0.getUser();
+      console.log("Logged in user:", user);
+      clearNPCs();
+    } else {
+      spawnNPCs();
+    }
 
     updateUI();
+
   } catch (err) {
     console.warn("Auth0 unavailable. Simulating logged-out state.");
+    spawnNPCs();
     updateUI(false);
   }
-})();
+}
 
 async function updateUI(authAvailable = true) {
-  let isAuthenticated = false;
-
-  if (authAvailable && auth0Client) {
-    isAuthenticated = await auth0Client.isAuthenticated();
-  }
-
   const topbar = document.getElementById("topbar");
   const sidebar = document.getElementById("sidebar");
   const mapDiv = document.getElementById("map");
 
+  let isAuthenticated = false;
+
+  if (authAvailable && auth0) {
+    isAuthenticated = await auth0.isAuthenticated();
+  }
+
   if (isAuthenticated) {
-    const user = await auth0Client.getUser();
+    const user = await auth0.getUser();
     document.getElementById("user-display").innerText = `Logged in as: ${user.name}`;
     document.getElementById("login-btn").style.display = "none";
     document.getElementById("logout-btn").style.display = "inline-block";
-    topbar.classList.remove("hidden");
-    sidebar.classList.remove("hidden");
-    mapDiv.classList.remove("disabled");
+    topbar?.classList.remove("hidden");
+    sidebar?.classList.remove("hidden");
+    mapDiv?.classList.remove("disabled");
     document.getElementById("welcome-screen").style.display = "none";
-    clearNPCs();
   } else {
     document.getElementById("user-display").innerText = "";
     document.getElementById("login-btn").style.display = "inline-block";
     document.getElementById("logout-btn").style.display = "none";
-    topbar.classList.add("hidden");
-    sidebar.classList.add("hidden");
-    mapDiv.classList.add("disabled");
+    topbar?.classList.add("hidden");
+    sidebar?.classList.add("hidden");
+    mapDiv?.classList.add("disabled");
     document.getElementById("welcome-screen").style.display = "flex";
-    spawnNPCs();
   }
 }
+
+// Button listeners (bind once DOM is ready)
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("login-btn").onclick = () => auth0.loginWithRedirect();
+  document.getElementById("logout-btn").onclick = () => auth0.logout({ returnTo: window.location.origin });
+  document.getElementById("welcome-login-btn").onclick = () => auth0.loginWithRedirect();
+});
+
+export { auth0, isAuthenticated };
