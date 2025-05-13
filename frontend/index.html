@@ -28,6 +28,23 @@
   </div>
 </div>
 
+<!-- Login Window -->
+<div id="loginWindow" class="win95-container">
+  <div class="win95-header">
+    <span>SupplyGridz Login</span>
+    <button class="win95-close" onclick="document.getElementById('loginWindow').style.display='none'">X</button>
+  </div>
+  <div class="win95-body">
+    <div class="win95-promo">
+      <p>[Promo or news goes here - editable later]</p>
+    </div>
+    <div class="win95-login">
+      <button class="win95-button" onclick="login()">Log In</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- Main App Container -->
 <div id="app-container">
   <div id="sidebar" class="hidden">
@@ -94,5 +111,11 @@
       .openPopup();
   }
 </script>
+<script>
+  function login() {
+    alert("Login function placeholder – integrate Auth0 next.");
+  }
+</script>
+
 </body>
 </html>

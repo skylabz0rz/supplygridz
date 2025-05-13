@@ -1,0 +1,69 @@
+.win95-container {
+  width: 90%;
+  max-width: 500px;
+  margin: 50px auto;
+  border: 2px solid gray;
+  box-shadow: 3px 3px #000;
+  background: #c0c0c0;
+  animation: fadeIn 0.5s ease-in;
+  font-family: "Tahoma", sans-serif;
+}
+
+.win95-header {
+  background: navy;
+  color: white;
+  padding: 5px 10px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.win95-close {
+  background: gray;
+  border: 1px solid black;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.win95-body {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  gap: 10px;
+}
+
+.win95-promo {
+  flex: 1;
+  background: white;
+  padding: 10px;
+  border: 2px inset gray;
+  font-size: 14px;
+}
+
+.win95-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win95-button {
+  background: lightgray;
+  border: 2px outset white;
+  padding: 5px 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .win95-body {
+    flex-direction: column;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
