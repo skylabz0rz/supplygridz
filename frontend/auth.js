@@ -26,30 +26,34 @@ let auth0Client;
 async function updateUI() {
   const isAuthenticated = await auth0Client.isAuthenticated();
 
+  const topbar = document.getElementById("topbar");
+  const sidebar = document.getElementById("sidebar");
+  const mapDiv = document.getElementById("map");
+
   if (isAuthenticated) {
     const user = await auth0Client.getUser();
     document.getElementById("user-display").innerText = `Logged in as: ${user.name}`;
     document.getElementById("login-btn").style.display = "none";
     document.getElementById("logout-btn").style.display = "inline-block";
 
-    document.getElementById("topbar").classList.remove("hidden");
-    document.getElementById("sidebar").classList.remove("hidden");
+    topbar.classList.remove("hidden");
+    sidebar.classList.remove("hidden");
+    mapDiv.classList.remove("disabled");
     document.getElementById("welcome-screen").style.display = "none";
-    document.getElementById("map").classList.remove("disabled");
 
     if (window.clearNPCs) window.clearNPCs();
-    // TODO: load real user vehicles
   } else {
     document.getElementById("user-display").innerText = "";
     document.getElementById("login-btn").style.display = "inline-block";
     document.getElementById("logout-btn").style.display = "none";
 
-    document.getElementById("topbar").classList.add("hidden");
-    document.getElementById("sidebar").classList.add("hidden");
+    topbar.classList.add("hidden");
+    sidebar.classList.add("hidden");
+    mapDiv.classList.add("disabled");
     document.getElementById("welcome-screen").style.display = "flex";
-    document.getElementById("map").classList.add("disabled");
 
     if (window.spawnNPCs) window.spawnNPCs();
   }
 }
+
 
