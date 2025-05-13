@@ -27,6 +27,16 @@ html, body {
   cursor: pointer;
 }
 
+#topbar.hidden,
+#sidebar.hidden {
+  display: none;
+}
+
+#map.disabled {
+  pointer-events: none;
+  filter: grayscale(60%) brightness(90%);
+}
+
 #welcome-screen {
   position: absolute;
   top: 60px;
