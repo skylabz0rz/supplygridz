@@ -19,10 +19,10 @@ let auth0Client = null;
 
   const isAuthenticated = await auth0Client.isAuthenticated();
 
-  if (!isAuthenticated) {
-    // Immediately send to login screen
-    return auth0Client.loginWithRedirect();
-  }
+if (!isAuthenticated) {
+  console.log("User not authenticated. Waiting for manual login...");
+  return; // Do nothing. Lock handles login now.
+}
 
   updateUI(true);
 })();
