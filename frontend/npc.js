@@ -48,7 +48,15 @@ function getSpeedForRoad(type) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function isValidCoord(lat, lon) {
+  return lat >= 24.5 && lat <= 49.5 && lon >= -125 && lon <= -66;
+}
+
 async function fetchRouteSteps(start, end) {
+  if (!isValidCoord(start[1], start[0]) || !isValidCoord(end[1], end[0])) {
+    console.warn("Skipping NPC due to out-of-bounds coordinates:", start, end);
+    return null;
+  }
   const url = `/osrm/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
   const response = await fetch(url);
   const contentType = response.headers.get("content-type");
@@ -173,4 +181,3 @@ function clearNPCs() {
 }
 
 export { spawnNPCs, clearNPCs };
-  
