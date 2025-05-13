@@ -39,41 +39,42 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     try {
       console.log("Initializing Leaflet map...");
-      if (!window.map) {
-        const mapContainer = document.getElementById("map");
-        if (!mapContainer) {
-          console.error("Map container missing");
-          return;
-        }
 
-        window.map = L.map('map').setView([39.8283, -98.5795], 4);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(window.map);
-
-        console.log("Leaflet map initialized.");
+      const mapContainer = document.getElementById("map");
+      if (!mapContainer || mapContainer._leaflet_id) {
+        console.warn("Map container is missing or already initialized.");
+        return;
       }
 
-      // Let the map stabilize a bit
-      setTimeout(() => {
-        if (window.map) window.map.invalidateSize(); // Force layout fix
+      window.map = L.map(mapContainer).setView([39.8283, -98.5795], 4);
 
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(window.map);
+
+      console.log("Leaflet map initialized");
+
+      // Safely invalidate after init
+      setTimeout(() => {
+        window.map.invalidateSize();
+      }, 100);
+
+      // Then hide the radar and load NPCs
+      setTimeout(() => {
         console.log("Spawning NPCs...");
         spawnNPCs();
 
-        // Hide loading overlay after NPCs start
         const overlay = document.getElementById("loading-overlay");
         if (overlay) overlay.style.display = "none";
-
-      }, 500); // delay allows tile rendering to complete
+      }, 500);
 
     } catch (e) {
       console.error("Leaflet or NPC startup failed:", e);
     }
   }, 300);
 });
+
 
 
 
