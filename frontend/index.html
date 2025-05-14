@@ -94,12 +94,23 @@
     }
   });
 
-  lock.on("authenticated", function(authResult) {
-    console.log("✅ Authenticated!", authResult);
-    localStorage.setItem("access_token", authResult.accessToken);
-    localStorage.setItem("id_token", authResult.idToken);
-    window.location.href = "/dashboard.html";
+lock.on("authenticated", function(authResult) {
+  lock.getUserInfo(authResult.accessToken, function(err, profile) {
+    if (err) return console.error(err);
+
+    fetch('/api/players/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth0_id: profile.sub,
+        name: profile.name,
+        email: profile.email
+      })
+    }).then(() => {
+      window.location.href = "/onboarding.html";
+    });
   });
+});
 
   lock.show();
 </script>

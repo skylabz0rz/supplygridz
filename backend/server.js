@@ -1,14 +1,20 @@
 import express from 'express';
-import cors from 'cors';
-import usersRouter from './api/users.js';
+import adminRoutes from './routes/admin.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import playersAPI from './api/players.js';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use('/api/users', usersRouter);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/players', playersAPI);
 
-const PORT = process.env.PORT || 5050;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use('/admin', adminRoutes);
+
+const PORT = 5050;
+app.listen(PORT, () => console.log(`🛠️ Admin panel live at http://localhost:${PORT}/admin`));

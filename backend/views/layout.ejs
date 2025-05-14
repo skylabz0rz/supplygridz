@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { margin-bottom: 20px; }
+    a { text-decoration: none; color: #eb5424; }
+    .table-links a { margin-right: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #f0f0f0; }
+    input, select { width: 100%; padding: 6px; margin-bottom: 10px; }
+    button { padding: 6px 12px; background: #eb5424; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1><%= title %></h1>
+  <%- body %>
+</body>
+</html>

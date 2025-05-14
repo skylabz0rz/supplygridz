@@ -1,0 +1,6 @@
+<% layout('layout', { title: 'Tables' }) %>
+<ul>
+  <% tables.forEach(t => { %>
+    <li><a href="/admin/<%= t.table_name %>"><%= t.table_name %></a></li>
+  <% }) %>
+</ul>

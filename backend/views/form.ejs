@@ -1,0 +1,9 @@
+<% layout('layout', { title: mode === 'edit' ? 'Edit ' + table : 'Add to ' + table }) %>
+<a href="/admin/<%= table %>">⬅ Back to <%= table %></a>
+<form method="POST">
+  <% columns.forEach(col => { if (col !== 'id') { %>
+    <label><%= col %>:</label>
+    <input name="<%= col %>" value="<%= values[col] || '' %>">
+  <% } }) %>
+  <button type="submit"><%= mode === 'edit' ? 'Update' : 'Create' %></button>
+</form>
