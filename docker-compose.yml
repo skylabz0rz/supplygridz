@@ -48,12 +48,14 @@ services:
       - "6381:6379"
     restart: unless-stopped
 
-  # --- Flask Backend API ---
+  # --- Node.js Backend API ---
   backend:
     build: ./backend
     container_name: gridz-backend-api
     ports:
       - "5300:5000"
+    env_file:
+      - .env.dev
     depends_on:
       - db
     restart: unless-stopped
