@@ -25,6 +25,7 @@
     .legal-note { font-style: italic; font-size: 0.8rem; color: #555; margin-top: 10px; text-align: center; }
     #sidebar ul li { color: #999; }
     #sidebar ul li.active { color: #000; font-weight: bold; }
+    .step-nav { text-align: center; margin-top: 24px; }
   </style>
 </head>
 <body>
@@ -35,7 +36,7 @@
         <ul>
           <li id="nav-step-1" class="active">📄 SBA Loan Form 302-B</li>
           <li id="nav-step-2">🏢 SBA Form 8825-A: Company Setup</li>
-          <li id="nav-step-3">📍 HQ Placement</li>
+          <li id="nav-step-3">📍 SBA Form 2031-HQ: HQ Placement</li>
         </ul>
       </nav>
     </aside>
@@ -47,13 +48,12 @@
 
       <section id="content">
         <div class="card gridline-box">
+          <!-- STEP 1 -->
           <div class="faux-form-title">SBA FORM 302-B – LOAN REQUEST & IDENTITY DISCLOSURE</div>
-          <p><strong>Welcome, entrepreneur.</strong> Before you are approved to operate your own logistics enterprise, the Startup Business Administration requires your verified details to underwrite your first business loan. Please complete the highlighted sections below.</p>
-
           <div id="step-1" class="step active">
             <div class="form-group">
               <label class="label">In-Game Name:</label>
-              <input type="text" id="playerName" class="highlight" onblur="autoFillFakeData('playerName')" />
+              <input type="text" id="playerName" class="highlight" />
             </div>
             <div class="form-group">
               <label class="label">Sex:</label>
@@ -84,12 +84,13 @@
             </div>
             <div class="form-group">
               <label class="label">Address:</label>
-              <input type="text" id="playerAddress" onclick="generateAddress()" class="highlight" readonly />
+              <input type="text" id="playerAddress" class="highlight" onclick="generateAddress()" readonly />
             </div>
           </div>
 
+          <!-- STEP 2 -->
+          <div class="faux-form-title">SBA FORM 8825-A – BUSINESS REGISTRATION DECLARATION</div>
           <div id="step-2" class="step">
-            <div class="faux-form-title">SBA FORM 8825-A – BUSINESS REGISTRATION DECLARATION</div>
             <div class="form-group">
               <label class="label">Company Name:</label>
               <input type="text" id="companyName" class="highlight" />
@@ -120,11 +121,30 @@
               <label class="label">Authorized Representative Signature:</label>
               <input type="text" class="highlight" value="Digitally signed by applicant" disabled />
             </div>
-            <div class="form-group" style="text-align: center; margin-top: 20px;">
-              <button onclick="prevStep()">⬅ Back</button>
-              <button onclick="nextStep()">Next ➡</button>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="faux-form-title">SBA FORM 2031-HQ – PRIMARY TERMINAL DECLARATION</div>
+          <div id="step-3" class="step">
+            <div class="form-group">
+              <p><strong>Headquarters Placement:</strong> Select your registered HQ location. Drag the marker to adjust.</p>
+              <div id="map"></div>
             </div>
-            <div class="legal-note">Form SBA-8825-A is required for the registration of any transport enterprise operating in virtual or simulated territories. Violations are subject to simulated penalty under Title 302.</div>
+            <div class="form-group">
+              <label class="label">Verified Location Coordinates:</label>
+              <input type="text" id="hqCoordinates" class="highlight" readonly />
+            </div>
+            <div class="form-group">
+              <label class="label">Certification:</label>
+              <input type="text" class="highlight" value="Map validated by field inspector" disabled />
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="step-nav">
+            <button onclick="prevStep()">⬅ Back</button>
+            <button id="nextBtn" onclick="nextStep()">Next ➡</button>
+            <button id="submitBtn" style="display: none;" onclick="submitOnboarding()">Submit Application ✅</button>
           </div>
         </div>
       </section>
@@ -132,12 +152,7 @@
   </div>
 
   <script>
-    function autoFillFakeData(id) {
-      if (id === 'playerName') {
-        const fillers = ['Applicant ID: #7891-WK', 'Ref No: GRD-3108-A'];
-        document.getElementById('application-id').innerText = `Startup Business Administration – ${fillers[Math.floor(Math.random()*fillers.length)]}`;
-      }
-    }
+    let currentStep = 1;
 
     function updateSidebar(step) {
       for (let i = 1; i <= 3; i++) {
@@ -146,28 +161,56 @@
       }
     }
 
-    let currentStep = 1;
     function nextStep() {
-      const curr = document.getElementById(`step-${currentStep}`);
-      if (curr) curr.classList.remove('active');
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
       currentStep++;
-      const next = document.getElementById(`step-${currentStep}`);
-      if (next) next.classList.add('active');
+      document.getElementById(`step-${currentStep}`).classList.add('active');
       updateSidebar(currentStep);
 
       if (currentStep === 2) {
-        const randomEIN = `${Math.floor(Math.random() * 89 + 10)}-${Math.floor(100000000 + Math.random() * 899999999)}`;
-        document.getElementById("companyEIN").value = randomEIN;
+        const ein = `${Math.floor(Math.random()*90+10)}-${Math.floor(100000000+Math.random()*899999999)}`;
+        document.getElementById('companyEIN').value = ein;
+      }
+      if (currentStep === 3) {
+        initMap();
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'inline-block';
       }
     }
 
     function prevStep() {
-      const curr = document.getElementById(`step-${currentStep}`);
-      if (curr) curr.classList.remove('active');
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
       currentStep--;
-      const prev = document.getElementById(`step-${currentStep}`);
-      if (prev) prev.classList.add('active');
+      document.getElementById(`step-${currentStep}`).classList.add('active');
       updateSidebar(currentStep);
+
+      if (currentStep < 3) {
+        document.getElementById('nextBtn').style.display = 'inline-block';
+        document.getElementById('submitBtn').style.display = 'none';
+      }
+    }
+
+    function initMap() {
+      const lat = window.generatedLat || 39.5;
+      const lng = window.generatedLng || -98.35;
+      const map = L.map('map').setView([lat, lng], 6);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      const hqMarker = L.marker([lat, lng], { draggable: true })
+        .addTo(map)
+        .bindPopup("Drag to set HQ location")
+        .openPopup();
+
+      updateCoords(hqMarker);
+      hqMarker.on('dragend', () => updateCoords(hqMarker));
+    }
+
+    function updateCoords(marker) {
+      const latlng = marker.getLatLng();
+      document.getElementById('hqCoordinates').value = `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
     }
   </script>
 </body>
