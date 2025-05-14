@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Onboarding - SupplyGridz</title>
+  <title>Loan Application - SupplyGridz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="dashboard.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -15,6 +15,8 @@
     .form-group { margin-bottom: 12px; }
     .logo-grid img { width: 100px; margin-right: 10px; border: 2px solid transparent; cursor: pointer; }
     .logo-grid img.selected { border-color: #eb5424; }
+    .faux-form-title { font-family: serif; font-weight: bold; font-size: 1.25rem; margin-bottom: 8px; }
+    .label { font-variant: small-caps; font-weight: bold; display: block; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -23,23 +25,211 @@
       <div class="brand">SupplyGridz</div>
       <nav>
         <ul>
-          <li class="active">🧑 Onboarding</li>
+          <li class="active">🧾 Loan Application</li>
         </ul>
       </nav>
     </aside>
 
     <main id="main">
       <header id="topbar">
-        <div class="title">Welcome! Let's Get You Setup</div>
+        <div class="title" id="application-id">Application ID: Generating...</div>
       </header>
 
       <section id="content">
-        <!-- Existing onboarding HTML (steps, map, etc.) goes here -->
         <div class="card">
-          <!-- INSERT existing <div class="card">...</div> and scripts inside here -->
+          <div id="step-1" class="step active">
+            <div class="faux-form-title">Loan Application Form 302-B: Personal Details</div>
+            <div class="form-group">
+              <label class="label">In-Game Name:</label>
+              <input type="text" id="playerName" />
+            </div>
+            <div class="form-group">
+              <label class="label">Sex:</label>
+              <select id="playerSex">
+                <option>Male</option>
+                <option>Female</option>
+                <option>Non-binary</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="label">Ethnicity:</label>
+              <select id="playerEthnicity">
+                <option>White</option>
+                <option>Black</option>
+                <option>Hispanic</option>
+                <option>Asian</option>
+                <option>Indigenous</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="label">City:</label>
+              <input type="text" id="playerCity" />
+            </div>
+            <div class="form-group">
+              <label class="label">State:</label>
+              <input type="text" id="playerState" />
+            </div>
+            <div class="form-group">
+              <label class="label">Address:</label>
+              <input type="text" id="playerAddress" onclick="generateAddress()" readonly />
+            </div>
+          </div>
+
+          <div id="step-2" class="step">
+            <div class="faux-form-title">Department of Interstate Logistics – Form 8825-A</div>
+            <div class="form-group">
+              <label class="label">Company Name:</label>
+              <input type="text" id="companyName" />
+            </div>
+            <div class="form-group">
+              <label class="label">Company Policies:</label><br>
+              <label><input type="checkbox" id="speedLimit" /> Govern Speed</label><br>
+              <label><input type="checkbox" id="zeroTolerance" /> Zero Tolerance Policy</label><br>
+              <label><input type="checkbox" id="legalOnly" /> Legal Cargo Only</label>
+            </div>
+            <div class="form-group">
+              <label class="label">Pay Scale:</label>
+              <select id="payScale">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="label">Maintenance Interval:</label>
+              <select id="maintenance">
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </div>
+            <div class="form-group logo-grid">
+              <label class="label">Choose a Logo:</label><br>
+              <img src="/logos/logo1.png" onclick="selectLogo(this)" />
+              <img src="/logos/logo2.png" onclick="selectLogo(this)" />
+              <img src="/logos/logo3.png" onclick="selectLogo(this)" />
+            </div>
+          </div>
+
+          <div id="step-3" class="step">
+            <h2>Step 3: Headquarters Placement</h2>
+            <div id="map"></div>
+          </div>
+
+          <div class="step-nav">
+            <button onclick="prevStep()">⬅ Back</button>
+            <button onclick="nextStep()">Next ➡</button>
+            <button id="submitBtn" style="display:none;" onclick="submitOnboarding()">Finish ✅</button>
+          </div>
         </div>
       </section>
     </main>
   </div>
+
+  <script>
+    let currentStep = 1;
+    let map, hqMarker, selectedLogo = null;
+
+    function nextStep() {
+      if (currentStep < 3) {
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        currentStep++;
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        if (currentStep === 3) {
+          document.getElementById('submitBtn').style.display = 'inline-block';
+          initMap();
+        }
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        currentStep--;
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        document.getElementById('submitBtn').style.display = currentStep === 3 ? 'inline-block' : 'none';
+      }
+    }
+
+    function selectLogo(img) {
+      document.querySelectorAll('.logo-grid img').forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
+      selectedLogo = img.src;
+    }
+
+    function initMap() {
+      const lat = window.generatedLat || 39.5;
+      const lng = window.generatedLng || -98.35;
+      map = L.map('map').setView([lat, lng], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      hqMarker = L.marker([lat, lng], { draggable: true }).addTo(map).bindPopup("Drag to set HQ location").openPopup();
+    }
+
+    function generateAddress() {
+      const city = document.getElementById('playerCity').value || 'Springfield';
+      const state = document.getElementById('playerState').value || 'WI';
+      const streetNum = Math.floor(Math.random() * 9999) + 1;
+      const streetNames = ['Main St', 'Commerce Blvd', 'Industrial Rd', 'Elm St', 'Washington Ave'];
+      const street = streetNames[Math.floor(Math.random() * streetNames.length)];
+      const full = `${streetNum} ${street}, ${city}, ${state}`;
+      document.getElementById('playerAddress').value = full;
+
+      // save location for map
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(full)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.length > 0) {
+            window.generatedLat = parseFloat(data[0].lat);
+            window.generatedLng = parseFloat(data[0].lon);
+          }
+        });
+
+      // set fake app ID
+      const appId = `L-${Math.floor(Math.random()*900000)+100000}-${state}`;
+      document.getElementById('application-id').innerText = `Application ID: ${appId}`;
+    }
+
+    async function submitOnboarding() {
+      const profile = JSON.parse(localStorage.getItem('auth0_profile'));
+
+      const player = {
+        in_game_name: document.getElementById('playerName').value,
+        sex: document.getElementById('playerSex').value,
+        ethnicity: document.getElementById('playerEthnicity').value
+      };
+
+      const company = {
+        name: document.getElementById('companyName').value,
+        logo: selectedLogo,
+        hq_lat: hqMarker.getLatLng().lat,
+        hq_lng: hqMarker.getLatLng().lng,
+        policies: {
+          speedLimit: document.getElementById('speedLimit').checked,
+          zeroTolerance: document.getElementById('zeroTolerance').checked,
+          legalOnly: document.getElementById('legalOnly').checked,
+          payScale: document.getElementById('payScale').value,
+          maintenance: document.getElementById('maintenance').value
+        }
+      };
+
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auth0_id: profile.sub, player, company })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert("Onboarding complete! Redirecting to dashboard...");
+        window.location.href = '/dashboard.html';
+      } else {
+        alert("Error: " + result.error);
+      }
+    }
+  </script>
 </body>
 </html>
