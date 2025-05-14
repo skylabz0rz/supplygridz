@@ -15,7 +15,6 @@
     #map { height: 300px; margin-top: 15px; }
     .step { display: none; }
     .step.active { display: block; }
-    .step-nav { margin-top: 20px; display: flex; justify-content: space-between; }
     .form-group { margin-bottom: 12px; }
     .logo-grid img { width: 100px; margin-right: 10px; border: 2px solid transparent; cursor: pointer; }
     .logo-grid img.selected { border-color: #eb5424; }
@@ -24,6 +23,8 @@
     .gridline-box { border: 2px solid #0074D9; padding: 20px; margin-top: 10px; background: white; }
     .highlight { background: #ffffaa; border: 1px dashed #999; padding: 4px; }
     .legal-note { font-style: italic; font-size: 0.8rem; color: #555; margin-top: 10px; text-align: center; }
+    #sidebar ul li { color: #999; }
+    #sidebar ul li.active { color: #000; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -32,7 +33,9 @@
       <div class="brand">SupplyGridz</div>
       <nav>
         <ul>
-          <li class="active">📄 SBA Loan Form 302-B</li>
+          <li id="nav-step-1" class="active">📄 SBA Loan Form 302-B</li>
+          <li id="nav-step-2">🏢 SBA Form 8825-A: Company Setup</li>
+          <li id="nav-step-3">📍 HQ Placement</li>
         </ul>
       </nav>
     </aside>
@@ -86,16 +89,12 @@
           </div>
 
           <div class="legal-note">This document is issued and reviewed by the Startup Business Administration's AI underwriting agent. Submission of this application does not guarantee loan approval or in-game startup funding.</div>
-        
-		<div class="form-group" style="text-align: center; margin-top: 20px;">
-  <button onclick="prevStep()">⬅ Back</button>
-  <button onclick="nextStep()">Next ➡</button>
-</div>
-		
-		</div>
 
-
-
+          <div class="form-group" style="text-align: center; margin-top: 20px;">
+            <button onclick="prevStep()">⬅ Back</button>
+            <button onclick="nextStep()">Next ➡</button>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -106,6 +105,32 @@
         const fillers = ['Applicant ID: #7891-WK', 'Ref No: GRD-3108-A'];
         document.getElementById('application-id').innerText = `Startup Business Administration – ${fillers[Math.floor(Math.random()*fillers.length)]}`;
       }
+    }
+
+    function updateSidebar(step) {
+      for (let i = 1; i <= 3; i++) {
+        const item = document.getElementById(`nav-step-${i}`);
+        if (item) item.className = (i === step) ? 'active' : '';
+      }
+    }
+
+    let currentStep = 1;
+    function nextStep() {
+      const curr = document.getElementById(`step-${currentStep}`);
+      if (curr) curr.classList.remove('active');
+      currentStep++;
+      const next = document.getElementById(`step-${currentStep}`);
+      if (next) next.classList.add('active');
+      updateSidebar(currentStep);
+    }
+
+    function prevStep() {
+      const curr = document.getElementById(`step-${currentStep}`);
+      if (curr) curr.classList.remove('active');
+      currentStep--;
+      const prev = document.getElementById(`step-${currentStep}`);
+      if (prev) prev.classList.add('active');
+      updateSidebar(currentStep);
     }
   </script>
 </body>
