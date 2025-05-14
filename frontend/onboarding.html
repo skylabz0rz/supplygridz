@@ -18,159 +18,28 @@
   </style>
 </head>
 <body>
-  <div class="card">
-    <div id="step-1" class="step active">
-      <h2>Step 1: Player Info</h2>
-      <div class="form-group">
-        <label>In-Game Name:</label>
-        <input type="text" id="playerName" />
-      </div>
-      <div class="form-group">
-        <label>Sex:</label>
-        <select id="playerSex">
-          <option>Male</option>
-          <option>Female</option>
-          <option>Non-binary</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Ethnicity:</label>
-        <select id="playerEthnicity">
-          <option>White</option>
-          <option>Black</option>
-          <option>Hispanic</option>
-          <option>Asian</option>
-          <option>Indigenous</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">SupplyGridz</div>
+      <nav>
+        <ul>
+          <li class="active">🧑 Onboarding</li>
+        </ul>
+      </nav>
+    </aside>
 
-    <div id="step-2" class="step">
-      <h2>Step 2: Company Setup</h2>
-      <div class="form-group">
-        <label>Company Name:</label>
-        <input type="text" id="companyName" />
-      </div>
-      <div class="form-group">
-        <label>Company Policies:</label><br>
-        <label><input type="checkbox" id="speedLimit" /> Govern Speed</label><br>
-        <label><input type="checkbox" id="zeroTolerance" /> Zero Tolerance Policy</label><br>
-        <label><input type="checkbox" id="legalOnly" /> Legal Cargo Only</label>
-      </div>
-      <div class="form-group">
-        <label>Pay Scale:</label>
-        <select id="payScale">
-          <option value="low">Low</option>
-          <option value="medium" selected>Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Maintenance Interval:</label>
-        <select id="maintenance">
-          <option value="monthly">Monthly</option>
-          <option value="weekly">Weekly</option>
-          <option value="daily">Daily</option>
-        </select>
-      </div>
-      <div class="form-group logo-grid">
-        <label>Choose a Logo:</label><br>
-        <img src="/logos/logo1.png" onclick="selectLogo(this)" />
-        <img src="/logos/logo2.png" onclick="selectLogo(this)" />
-        <img src="/logos/logo3.png" onclick="selectLogo(this)" />
-      </div>
-    </div>
+    <main id="main">
+      <header id="topbar">
+        <div class="title">Welcome! Let's Get You Setup</div>
+      </header>
 
-    <div id="step-3" class="step">
-      <h2>Step 3: Headquarters Placement</h2>
-      <div id="map"></div>
-    </div>
-
-    <div class="step-nav">
-      <button onclick="prevStep()">⬅ Back</button>
-      <button onclick="nextStep()">Next ➡</button>
-      <button id="submitBtn" style="display:none;" onclick="submitOnboarding()">Finish ✅</button>
-    </div>
+      <section id="content">
+        <!-- Existing onboarding HTML (steps, map, etc.) goes here -->
+        <div class="card">
+          <!-- INSERT existing <div class="card">...</div> and scripts inside here -->
+        </div>
+      </section>
+    </main>
   </div>
-
-  <script>
-    let currentStep = 1;
-    let map, hqMarker, selectedLogo = null;
-
-    function nextStep() {
-      if (currentStep < 3) {
-        document.getElementById(`step-${currentStep}`).classList.remove('active');
-        currentStep++;
-        document.getElementById(`step-${currentStep}`).classList.add('active');
-        if (currentStep === 3) {
-          document.getElementById('submitBtn').style.display = 'inline-block';
-          initMap();
-        }
-      }
-    }
-
-    function prevStep() {
-      if (currentStep > 1) {
-        document.getElementById(`step-${currentStep}`).classList.remove('active');
-        currentStep--;
-        document.getElementById(`step-${currentStep}`).classList.add('active');
-        document.getElementById('submitBtn').style.display = currentStep === 3 ? 'inline-block' : 'none';
-      }
-    }
-
-    function selectLogo(img) {
-      document.querySelectorAll('.logo-grid img').forEach(i => i.classList.remove('selected'));
-      img.classList.add('selected');
-      selectedLogo = img.src;
-    }
-
-    function initMap() {
-      map = L.map('map').setView([39.5, -98.35], 4);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-
-      hqMarker = L.marker(map.getCenter(), { draggable: true }).addTo(map).bindPopup("Drag to set HQ location").openPopup();
-    }
-
-    async function submitOnboarding() {
-      const profile = JSON.parse(localStorage.getItem('auth0_profile'));
-
-      const player = {
-        in_game_name: document.getElementById('playerName').value,
-        sex: document.getElementById('playerSex').value,
-        ethnicity: document.getElementById('playerEthnicity').value
-      };
-
-      const company = {
-        name: document.getElementById('companyName').value,
-        logo: selectedLogo,
-        hq_lat: hqMarker.getLatLng().lat,
-        hq_lng: hqMarker.getLatLng().lng,
-        policies: {
-          speedLimit: document.getElementById('speedLimit').checked,
-          zeroTolerance: document.getElementById('zeroTolerance').checked,
-          legalOnly: document.getElementById('legalOnly').checked,
-          payScale: document.getElementById('payScale').value,
-          maintenance: document.getElementById('maintenance').value
-        }
-      };
-
-      const res = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ auth0_id: profile.sub, player, company })
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        alert("Onboarding complete! Redirecting to dashboard...");
-        window.location.href = '/dashboard.html';
-      } else {
-        alert("Error: " + result.error);
-      }
-    }
-  </script>
 </body>
 </html>
