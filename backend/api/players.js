@@ -34,6 +34,13 @@ router.post('/login', async (req, res) => {
       [auth0_id, name]
     );
 
+	console.log("Inserted player:", insert.rows[0]);
+	
+	} catch (err) {
+	console.error('POST /login failed:', err);
+	res.status(500).json({ error: 'DB error' });
+	}
+
     res.json({ player: insert.rows[0], exists: false });
   } catch (err) {
     console.error('POST /login failed:', err);
