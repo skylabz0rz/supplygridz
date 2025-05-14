@@ -16,5 +16,5 @@ app.set('view engine', 'ejs');
 
 app.use('/admin', adminRoutes);
 
-const PORT = 5300;
+const PORT = 5000;
 app.listen(PORT, () => console.log(`🛠️ Admin panel live at http://localhost:${PORT}/admin`));

@@ -1,18 +1,8 @@
-FROM python:3.10-slim
-
+FROM node:18-alpine
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
- && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
+RUN npm install
+EXPOSE 5000
+CMD ["node", "server.js"]
 
-ENV PYTHONUNBUFFERED=1
-
-CMD ["python", "app.py"]
 
