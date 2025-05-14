@@ -51,10 +51,75 @@
           <!-- STEP 1 -->
           <div class="faux-form-title">SBA FORM 302-B – LOAN REQUEST & IDENTITY DISCLOSURE</div>
           <div id="step-1" class="step active">
-            <div class="form-group">
-              <label class="label">In-Game Name:</label>
-              <input type="text" id="playerName" class="highlight" />
-            </div>
+  <div class="form-group">
+    <label class="label">In-Game Name:</label>
+    <input type="text" id="playerName" class="highlight" />
+  </div>
+  <div class="form-group">
+    <label class="label">Sex:</label>
+    <select id="playerSex" class="highlight">
+      <option>Male</option>
+      <option>Female</option>
+      <option>Non-binary</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="label">Ethnicity:</label>
+    <select id="playerEthnicity" class="highlight">
+      <option>White</option>
+      <option>Black</option>
+      <option>Hispanic</option>
+      <option>Asian</option>
+      <option>Indigenous</option>
+      <option>Other</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="label">City:</label>
+    <input type="text" id="playerCity" class="highlight" />
+  </div>
+  <div class="form-group">
+    <label class="label">State:</label>
+    <input type="text" id="playerState" class="highlight" />
+  </div>
+  <div class="form-group">
+    <label class="label">Address:</label>
+    <input type="text" id="playerAddress" class="highlight" onclick="generateAddress()" readonly />
+  </div>
+  <hr>
+  <div class="form-group">
+    <label class="label">Loan Amount Requested:</label>
+    <select id="loanAmount" class="highlight">
+      <option value="50000">$50,000</option>
+      <option value="150000">$150,000</option>
+      <option value="300000">$300,000</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="label">Loan Term:</label>
+    <select id="loanTerm" class="highlight">
+      <option value="1">1 Year</option>
+      <option value="5">5 Years</option>
+      <option value="10">10 Years</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="label">Payment Frequency:</label>
+    <select id="loanFreq" class="highlight">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="label">Estimated Interest Rate:</label>
+    <input type="text" id="interestRate" class="highlight" readonly />
+  </div>
+  <div class="form-group">
+    <label class="label">Projected Payment:</label>
+    <input type="text" id="projectedPayment" class="highlight" readonly />
+  </div>
+</div>
             <div class="form-group">
               <label class="label">Sex:</label>
               <select id="playerSex" class="highlight">
@@ -126,9 +191,25 @@
           <!-- STEP 3 -->
           <div class="faux-form-title">SBA FORM 2031-HQ – PRIMARY TERMINAL DECLARATION</div>
           <div id="step-3" class="step">
-            <div class="form-group">
-              <p><strong>Headquarters Placement:</strong> Select your registered HQ location. Drag the marker to adjust.</p>
-              <div id="map"></div>
+  <div class="faux-form-title">SBA FORM 2031-HQ – PRIMARY TERMINAL DECLARATION</div>
+  <p><strong>Headquarters Lease Selection:</strong> Based on your declared city, the SBA has found the following commercial properties available for lease:</p>
+  <div id="hqListings">
+    <p>Searching available facilities in your city...</p>
+  </div>
+  <div class="form-group">
+    <label class="label">Your Selection:</label>
+    <input type="text" id="selectedHQ" class="highlight" readonly />
+  </div>
+  <div class="form-group">
+    <label class="label">Certification:</label>
+    <input type="text" class="highlight" value="Lease selected and reviewed by applicant" disabled />
+  </div>
+  <div class="form-group" style="text-align: center; margin-top: 20px;">
+    <button onclick="prevStep()">⬅ Back</button>
+    <button id="submitBtn" onclick="submitOnboarding()">Submit Application ✅</button>
+  </div>
+  <div class="legal-note">SBA Form 2031-HQ requires proper lease assignment prior to operational approval. Virtual tenancy verified via grid overlay standards.</div>
+</div>
             </div>
             <div class="form-group">
               <label class="label">Verified Location Coordinates:</label>
@@ -212,6 +293,59 @@
       const latlng = marker.getLatLng();
       document.getElementById('hqCoordinates').value = `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
     }
-  </script>
+  document.getElementById('loanAmount').addEventListener('change', updateInterest);
+    document.getElementById('loanTerm').addEventListener('change', updateInterest);
+
+    function updateInterest() {
+      const amount = parseInt(document.getElementById('loanAmount').value);
+      const term = parseInt(document.getElementById('loanTerm').value);
+      let baseRate = 5.0;
+      if (amount > 100000) baseRate += 1.5;
+      if (term > 1) baseRate += term * 0.5;
+      document.getElementById('interestRate').value = baseRate.toFixed(2) + '%';
+      const payment = ((amount * (1 + (baseRate / 100))) / (term * 12)).toFixed(2);
+      document.getElementById('projectedPayment').value = `$${payment} / mo`;
+    }
+  function fetchHQOptions() {
+  const city = document.getElementById('playerCity').value;
+  const container = document.getElementById('hqListings');
+  if (!city || !container) return;
+
+  // Simulate API pull with mock commercial listings
+  const mockResults = [
+    `${Math.floor(Math.random()*900+100)} Commerce Ave, ${city} – $3,200/mo`,
+    `${Math.floor(Math.random()*900+100)} Freight Blvd, ${city} – $2,750/mo`,
+    `${Math.floor(Math.random()*900+100)} Industrial Loop, ${city} – $3,450/mo`
+  ];
+
+  container.innerHTML = mockResults.map(addr => 
+    `<div class="hq-option" onclick="selectHQOption(this)">${addr}</div>`
+  ).join('');
+}
+
+function selectHQOption(elem) {
+  document.querySelectorAll('.hq-option').forEach(opt => opt.classList.remove('selected'));
+  elem.classList.add('selected');
+  document.getElementById('selectedHQ').value = elem.textContent;
+}
+
+// Inject after map removal
+function nextStep() {
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  currentStep++;
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateSidebar(currentStep);
+
+  if (currentStep === 2) {
+    const ein = `${Math.floor(Math.random()*90+10)}-${Math.floor(100000000+Math.random()*899999999)}`;
+    document.getElementById('companyEIN').value = ein;
+  }
+  if (currentStep === 3) {
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('submitBtn').style.display = 'inline-block';
+    fetchHQOptions();
+  }
+}
+</script>
 </body>
 </html>
