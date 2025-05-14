@@ -80,7 +80,7 @@
   const lock = new Auth0Lock('km3gCmbm6K9aeA3uFQh4Wlw3FSUjhZwr', 'dev-tzh46biettai7rin.us.auth0.com', {
     container: 'auth0-login-container',
     auth: {
-      redirect: false, // Don't redirect — we’ll manually handle it
+      redirect: false,
       responseType: 'token id_token',
       params: {
         scope: 'openid profile email'
@@ -94,26 +94,41 @@
     }
   });
 
-lock.on("authenticated", function(authResult) {
-  lock.getUserInfo(authResult.accessToken, function(err, profile) {
-    if (err) return console.error(err);
+  lock.on("authenticated", function(authResult) {
+    lock.getUserInfo(authResult.accessToken, function(err, profile) {
+      if (err) {
+        console.error("❌ Error getting profile:", err);
+        return;
+      }
 
-    fetch('/api/players/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        auth0_id: profile.sub,
-        name: profile.name,
-        email: profile.email
+      fetch('/api/players/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth0_id: profile.sub,
+          name: profile.name,
+          email: profile.email
+        })
       })
-    }).then(() => {
-      window.location.href = "/onboarding.html";
+      .then(res => res.json())
+      .then(data => {
+        console.log("✅ Player login result:", data);
+
+        if (data.player.onboarding_complete) {
+          window.location.href = "/dashboard.html";
+        } else {
+          window.location.href = "/onboarding.html";
+        }
+      })
+      .catch(err => {
+        console.error("❌ Login POST failed:", err);
+      });
     });
   });
-});
 
   lock.show();
 </script>
+
 
 
 </body>
