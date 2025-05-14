@@ -200,7 +200,22 @@
     }
 
     function nextStep() {
-      document.getElementById(`step-${currentStep}`).classList.remove('active');
+  const curr = document.getElementById(`step-${currentStep}`);
+  if (curr) curr.classList.remove('active');
+  currentStep++;
+  const next = document.getElementById(`step-${currentStep}`);
+  if (next) next.classList.add('active');
+  updateSidebar(currentStep);
+  if (currentStep === 2) {
+    const ein = `${Math.floor(Math.random()*90+10)}-${Math.floor(100000000+Math.random()*899999999)}`;
+    document.getElementById('companyEIN').value = ein;
+  }
+  if (currentStep === 3) {
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('submitBtn').style.display = 'inline-block';
+    fetchHQOptions();
+  }
+}`).classList.remove('active');
       currentStep++;
       document.getElementById(`step-${currentStep}`).classList.add('active');
       updateSidebar(currentStep);
@@ -217,7 +232,17 @@
     }
 
     function prevStep() {
-      document.getElementById(`step-${currentStep}`).classList.remove('active');
+  const curr = document.getElementById(`step-${currentStep}`);
+  if (curr) curr.classList.remove('active');
+  currentStep--;
+  const prev = document.getElementById(`step-${currentStep}`);
+  if (prev) prev.classList.add('active');
+  updateSidebar(currentStep);
+  if (currentStep < 3) {
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('submitBtn').style.display = 'none';
+  }
+}`).classList.remove('active');
       currentStep--;
       document.getElementById(`step-${currentStep}`).classList.add('active');
       updateSidebar(currentStep);
