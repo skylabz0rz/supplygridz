@@ -7,6 +7,7 @@ import playersAPI from './api/players.js';
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/players', playersAPI);
