@@ -49,7 +49,7 @@
       <section id="content">
         <div class="card gridline-box">
           <!-- STEP 1 -->
-          <div class="faux-form-title">SBA FORM 302-B – LOAN REQUEST & IDENTITY DISCLOSURE</div>
+          <div class="faux-form-title" style="display: none;">
           <div id="step-1" class="step active">
   <div class="form-group">
     <label class="label">In-Game Name:</label>
@@ -114,7 +114,7 @@
           </div>
 
           <!-- STEP 2 -->
-          <div class="faux-form-title">SBA FORM 8825-A – BUSINESS REGISTRATION DECLARATION</div>
+          <div class="faux-form-title" style="display: none;">
           <div id="step-2" class="step">
             <div class="form-group">
               <label class="label">Company Name:</label>
@@ -149,9 +149,9 @@
           </div>
 
           <!-- STEP 3 -->
-          <div class="faux-form-title">SBA FORM 2031-HQ – PRIMARY TERMINAL DECLARATION</div>
+          <div class="faux-form-title" style="display: none;">
           <div id="step-3" class="step">
-  <div class="faux-form-title">SBA FORM 2031-HQ – PRIMARY TERMINAL DECLARATION</div>
+  <div class="faux-form-title" style="display: none;">
   <p><strong>Headquarters Lease Selection:</strong> Based on your declared city, the SBA has found the following commercial properties available for lease:</p>
   <div id="hqListings">
     <p>Searching available facilities in your city...</p>
@@ -160,10 +160,10 @@
     <label class="label">Your Selection:</label>
     <input type="text" id="selectedHQ" class="highlight" readonly />
   </div>
-  <div class="form-group">
-    <label class="label">Certification:</label>
-    <input type="text" class="highlight" value="Lease selected and reviewed by applicant" disabled />
-  </div>
+  <div class="form-group" id="certBlock" style="display: none;">
+  <label class="label">Certification:</label>
+  <input type="text" class="highlight" value="Lease selected and reviewed by applicant" disabled />
+</div>
   <div class="form-group" style="text-align: center; margin-top: 20px;">
     <button onclick="prevStep()">⬅ Back</button>
     <button id="submitBtn" onclick="submitOnboarding()">Submit Application ✅</button>
@@ -172,17 +172,17 @@
 </div>
             </div>
             
-            <div class="form-group">
-              <label class="label">Certification:</label>
-              <input type="text" class="highlight" value="Map validated by field inspector" disabled />
-            </div>
+            <div class="form-group" id="certBlock" style="display: none;">
+  <label class="label">Certification:</label>
+  <input type="text" class="highlight" value="Lease selected and reviewed by applicant" disabled />
+</div>
           </div>
 
           <!-- Navigation Buttons -->
           <div class="step-nav">
   <button onclick="prevStep()">⬅ Back</button>
-  <button id="nextBtn" onclick="nextStep()">Next ➡</button>
-  <button id="submitBtn" style="display: none;" onclick="submitOnboarding()">Submit Application ✅</button>
+  <button id="nextBtn" type="button" onclick="nextStep()">Next ➡</button>
+  <button id="submitBtn" type="button" style="display: none;" onclick="submitOnboarding()">Submit Application ✅</button>
 </div>
         </div>
       </section>
