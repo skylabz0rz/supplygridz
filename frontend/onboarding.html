@@ -2,11 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SupplyGridz Full Onboarding</title>
+  <title>SupplyGridz SBA Onboarding</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background: #f0f4f8; font-family: monospace; padding: 40px; display: flex; justify-content: center; }
-    .paper { background: white; padding: 30px; width: 100%; max-width: 800px; box-shadow: 0 0 20px rgba(0,0,0,0.1); border: 1px solid #ccc; }
+    body { margin: 0; font-family: monospace; background: #eef3f8; }
+    #dashboard-container { display: flex; min-height: 100vh; }
+    #sidebar {
+      width: 200px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px;
+    }
+    #sidebar .brand { font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; }
+    #sidebar ul { list-style: none; padding: 0; }
+    #sidebar ul li { margin-bottom: 15px; opacity: 0.6; }
+    #sidebar ul li.active { font-weight: bold; opacity: 1; }
+
+    #main { flex: 1; display: flex; flex-direction: column; }
+    #topbar {
+      background: #34495e;
+      color: white;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+
+    #content { flex: 1; display: flex; justify-content: center; padding: 40px; }
+    .paper {
+      background: white;
+      padding: 30px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      border: 1px solid #ccc;
+    }
+
     .step { display: none; }
     .step.active { display: block; }
     .form-group { margin-bottom: 20px; }
@@ -21,79 +50,86 @@
   </style>
 </head>
 <body>
-  <div class="paper">
-    <div id="step-1" class="step active">
-      <div class="title">SBA FORM 100-A – PLAYER REGISTRATION</div>
-      <div class="form-group"><label>In-Game Name:</label><input type="text" id="playerName" class="highlight" /></div>
-      <div class="form-group"><label>Sex:</label>
-        <select id="playerSex" class="highlight"><option>Male</option><option>Female</option><option>Non-binary</option></select>
-      </div>
-      <div class="form-group"><label>Ethnicity:</label>
-        <select id="playerEthnicity" class="highlight"><option>White</option><option>Black</option><option>Asian</option><option>Hispanic</option><option>Other</option></select>
-      </div>
-      <div class="form-group"><label>City:</label><input type="text" id="playerCity" class="highlight" /></div>
-      <div class="form-group"><label>State:</label><input type="text" id="playerState" class="highlight" /></div>
-    </div>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">SupplyGridz</div>
+      <ul>
+        <li id="nav-step-1" class="active">🧑 Registration</li>
+        <li id="nav-step-2">💰 Loan Request</li>
+        <li id="nav-step-3">🏢 Lease HQ</li>
+      </ul>
+    </aside>
 
-    <div id="step-2" class="step">
-      <div class="title">SBA FORM 302-B – LOAN REQUEST</div>
-      <div class="form-group">
-        <label>Loan Amount:</label>
-        <input type="range" id="loanAmount" min="50000" max="300000" step="10000" value="50000" oninput="updateLoanSummary()">
-        <div><strong>Selected:</strong> $<span id="loanAmountVal">50000</span></div>
-      </div>
-      <div class="form-group">
-        <label>Loan Term:</label>
-        <input type="range" id="loanTerm" min="1" max="10" step="4" value="1" oninput="updateLoanSummary()">
-        <div><strong>Years:</strong> <span id="loanTermVal">1</span></div>
-      </div>
-      <div class="form-group">
-        <label>Payment Frequency:</label><br>
-        <label><input type="radio" name="freq" value="daily"> Daily</label>
-        <label><input type="radio" name="freq" value="weekly" checked> Weekly</label>
-        <label><input type="radio" name="freq" value="monthly"> Monthly</label>
-      </div>
-      <div class="form-group">
-        <label>Interest Rate:</label>
-        <input type="text" id="interestRate" readonly />
-      </div>
-      <div class="form-group">
-        <label>Projected Payment:</label>
-        <input type="text" id="projectedPayment" readonly />
-      </div>
-    </div>
+    <main id="main">
+      <header id="topbar">
+        SBA Application – Startup Business Administration
+      </header>
 
-    <div id="step-3" class="step">
-      <div class="title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
-      <div id="hqProperties">
-        <div class="property active">
-          <img src="https://via.placeholder.com/640x360.png?text=Depot+A" />
-          <p><strong>Address:</strong> 101 Depot Rd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,200<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
-          <button onclick="selectLease('Depot A - $3200')">Select This Lease</button>
-        </div>
-        <div class="property">
-          <img src="https://via.placeholder.com/640x360.png?text=Depot+B" />
-          <p><strong>Address:</strong> 212 Freight Ave<br><strong>Garage Level:</strong> 2<br><strong>Rent:</strong> $4,480<br><span class="garage-note">1 Bay + 3-Door Garage</span></p>
-          <button onclick="selectLease('Depot B - $4480')">Select This Lease</button>
-        </div>
-        <div class="property">
-          <img src="https://via.placeholder.com/640x360.png?text=Depot+C" />
-          <p><strong>Address:</strong> 39 Truckstop Blvd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,100<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
-          <button onclick="selectLease('Depot C - $3100')">Select This Lease</button>
-        </div>
-      </div>
-      <div class="form-group"><label>Selected Lease:</label><input type="text" id="selectedLease" readonly class="highlight" /></div>
-      <div class="nav">
-        <button onclick="prevHQ()">⬅ Prev</button>
-        <button onclick="nextHQ()">Next ➡</button>
-      </div>
-    </div>
+      <section id="content">
+        <div class="paper">
+          <!-- Paper contents will be added here -->
+          <div id="step-1" class="step active">
+            <div class="title">SBA FORM 100-A – PLAYER REGISTRATION</div>
+            <div class="form-group"><label>In-Game Name:</label><input type="text" id="playerName" class="highlight" /></div>
+            <div class="form-group"><label>Sex:</label><select id="playerSex" class="highlight"><option>Male</option><option>Female</option><option>Non-binary</option></select></div>
+            <div class="form-group"><label>Ethnicity:</label><select id="playerEthnicity" class="highlight"><option>White</option><option>Black</option><option>Asian</option><option>Hispanic</option><option>Other</option></select></div>
+            <div class="form-group"><label>City:</label><input type="text" id="playerCity" class="highlight" /></div>
+            <div class="form-group"><label>State:</label><input type="text" id="playerState" class="highlight" /></div>
+          </div>
 
-    <div class="nav">
-      <button onclick="prevStep()">⬅ Back</button>
-      <button id="nextBtn" onclick="nextStep()">Next ➡</button>
-      <button id="submitBtn" style="display:none;" onclick="alert('Application Submitted!')">Submit ✅</button>
-    </div>
+          <div id="step-2" class="step">
+            <div class="title">SBA FORM 302-B – LOAN REQUEST</div>
+            <div class="form-group">
+              <label>Loan Amount:</label>
+              <input type="range" id="loanAmount" min="50000" max="300000" step="10000" value="50000" oninput="updateLoanSummary()">
+              <div><strong>Selected:</strong> $<span id="loanAmountVal">50000</span></div>
+            </div>
+            <div class="form-group">
+              <label>Loan Term:</label>
+              <input type="range" id="loanTerm" min="1" max="10" step="4" value="1" oninput="updateLoanSummary()">
+              <div><strong>Years:</strong> <span id="loanTermVal">1</span></div>
+            </div>
+            <div class="form-group">
+              <label>Payment Frequency:</label><br>
+              <label><input type="radio" name="freq" value="daily"> Daily</label>
+              <label><input type="radio" name="freq" value="weekly" checked> Weekly</label>
+              <label><input type="radio" name="freq" value="monthly"> Monthly</label>
+            </div>
+            <div class="form-group"><label>Interest Rate:</label><input type="text" id="interestRate" readonly /></div>
+            <div class="form-group"><label>Projected Payment:</label><input type="text" id="projectedPayment" readonly /></div>
+          </div>
+
+          <div id="step-3" class="step">
+            <div class="title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
+            <div id="hqProperties">
+              <div class="property active">
+                <img src="https://via.placeholder.com/640x360.png?text=Depot+A" />
+                <p><strong>Address:</strong> 101 Depot Rd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,200<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
+                <button onclick="selectLease('Depot A - $3200')">Select This Lease</button>
+              </div>
+              <div class="property">
+                <img src="https://via.placeholder.com/640x360.png?text=Depot+B" />
+                <p><strong>Address:</strong> 212 Freight Ave<br><strong>Garage Level:</strong> 2<br><strong>Rent:</strong> $4,480<br><span class="garage-note">1 Bay + 3-Door Garage</span></p>
+                <button onclick="selectLease('Depot B - $4480')">Select This Lease</button>
+              </div>
+              <div class="property">
+                <img src="https://via.placeholder.com/640x360.png?text=Depot+C" />
+                <p><strong>Address:</strong> 39 Truckstop Blvd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,100<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
+                <button onclick="selectLease('Depot C - $3100')">Select This Lease</button>
+              </div>
+            </div>
+            <div class="form-group"><label>Selected Lease:</label><input type="text" id="selectedLease" readonly class="highlight" /></div>
+            <div class="nav"><button onclick="prevHQ()">⬅ Prev</button><button onclick="nextHQ()">Next ➡</button></div>
+          </div>
+
+          <div class="nav">
+            <button onclick="prevStep()">⬅ Back</button>
+            <button id="nextBtn" onclick="nextStep()">Next ➡</button>
+            <button id="submitBtn" style="display:none;" onclick="alert('Application Submitted!')">Submit ✅</button>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
@@ -101,9 +137,17 @@
     let hqIndex = 0;
     const properties = document.querySelectorAll('.property');
 
+    function updateSidebar(step) {
+      for (let i = 1; i <= 3; i++) {
+        const item = document.getElementById(`nav-step-${i}`);
+        if (item) item.className = (i === step) ? 'active' : '';
+      }
+    }
+
     function updateStep() {
       document.querySelectorAll('.step').forEach((el, i) =>
         el.classList.toggle('active', i === currentStep - 1));
+      updateSidebar(currentStep);
       document.getElementById('submitBtn').style.display = (currentStep === 3) ? 'inline-block' : 'none';
       document.getElementById('nextBtn').style.display = (currentStep === 3) ? 'none' : 'inline-block';
     }
