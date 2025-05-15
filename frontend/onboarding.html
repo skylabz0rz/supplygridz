@@ -3,9 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <title>SupplyGridz SBA Onboarding</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Courier New', Courier, monospace; background: #f0f5fa; padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .highlight { background: #ffffaa; padding: 4px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .step-nav { margin-top: 30px; text-align: center; }
+    .gridline-box { border: 2px solid #0074D9; padding: 20px; background: white; margin-top: 20px; }
+    .faux-form-title { font-family: serif; font-weight: bold; font-size: 1.2rem; border-bottom: 2px double #333; margin-bottom: 10px; text-align: left; }
+    .hq-option { border: 2px dashed #ccc; margin: 10px 0; padding: 10px; background: #eef; cursor: pointer; }
+    .hq-option.selected { border-color: #0074D9; background: #dff; }
+    .radio-buttons label { margin-right: 20px; }
+  </style>
 </head>
 <body>
-  <h1>SupplyGridz SBA Onboarding</h1>
-  <p>This final onboarding form includes full SBA loan and HQ lease flow.</p>
+  <div id="step-1" class="step active gridline-box">
+    <div class="faux-form-title">SBA FORM 302-B – LOAN REQUEST</div>
+    <div class="form-group">
+      <label>Loan Amount ($50k - $300k):</label><br>
+      <input type="range" id="loanAmount" min="50000" max="300000" step="10000" value="50000" oninput="updateLoanSummary()">
+      <div><strong>Selected:</strong> $<span id="loanAmountVal">50000</span></div>
+    </div>
+    <div class="form-group">
+      <label>Loan Term (Years):</label><br>
+      <input type="range" id="loanTerm" min="1" max="10" step="4" value="1" oninput="updateLoanSummary()">
+      <div><strong>Term:</strong> <span id="loanTermVal">1</span> year(s)</div>
+    </div>
+    <div class="form-group radio-buttons">
+      <label><strong>Payment Frequency:</strong></label><br>
+      <label><input type="radio" name="paymentFreq" value="daily"> Daily</label>
+      <label><input type="radio" name="paymentFreq" value="weekly" checked> Weekly</label>
+      <label><input type="radio" name="paymentFreq" value="monthly"> Monthly</label>
+    </div>
+    <div class="form-group">
+      <label>Estimated Interest Rate:</label>
+      <input type="text" id="interestRate" readonly>
+    </div>
+    <div class="form-group">
+      <label>Projected Monthly Payment:</label>
+      <input type="text" id="projectedPayment" readonly>
+    </div>
+  </div>
+
+  <div id="step-2" class="step gridline-box">
+    <div class="faux-form-title">SBA FORM 8825-A – BUSINESS REGISTRATION</div>
+    <div class="form-group">
+      <label>Company Name:</label>
+      <input type="text" id="companyName" />
+    </div>
+    <div class="form-group">
+      <label>Business Structure:</label>
+      <select id="companyStructure">
+        <option>LLC</option>
+        <option>Corporation</option>
+        <option>Sole Proprietor</option>
+        <option>Partnership</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>City:</label>
+      <input type="text" id="playerCity" />
+    </div>
+    <div class="form-group">
+      <label>State:</label>
+      <input type="text" id="playerState" />
+    </div>
+    <div class="form-group">
+      <label>Business Category:</label>
+      <select id="companyCategory">
+        <option>Trucking</option>
+        <option>Rail Logistics</option>
+        <option>Air Freight</option>
+        <option>Maritime Shipping</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="step-3" class="step gridline-box">
+    <div class="faux-form-title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
+    <p>Select your HQ facility from the options below:</p>
+    <div id="hqListings"></div>
+    <div class="form-group">
+      <label>Selected Lease:</label>
+      <input type="text" id="selectedHQ" readonly />
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button onclick="prevStep()">⬅ Back</button>
+    <button id="nextBtn" onclick="nextStep()">Next ➡</button>
+    <button id="submitBtn" onclick="alert('Submitted!')" style="display: none;">Submit Application ✅</button>
+  </div>
+
+  <script>
+    let currentStep = 1;
+
+    function updateLoanSummary() {
+      const loan = parseInt(document.getElementById('loanAmount').value);
+      const term = parseInt(document.getElementById('loanTerm').value);
+      document.getElementById('loanAmountVal').textContent = loan;
+      document.getElementById('loanTermVal').textContent = term;
+      const rate = (Math.random() * (6 - 4) + 4).toFixed(2);
+      document.getElementById('interestRate').value = rate + '%';
+      const monthly = ((loan * (1 + rate / 100)) / (term * 12)).toFixed(2);
+      document.getElementById('projectedPayment').value = '$' + monthly + ' / mo';
+    }
+
+    function updateSidebar() {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step-${currentStep}`).classList.add('active');
+      document.getElementById('submitBtn').style.display = (currentStep === 3) ? 'inline-block' : 'none';
+      document.getElementById('nextBtn').style.display = (currentStep === 3) ? 'none' : 'inline-block';
+    }
+
+    function nextStep() {
+      currentStep++;
+      if (currentStep === 3) fetchHQOptions();
+      updateSidebar();
+    }
+
+    function prevStep() {
+      currentStep--;
+      updateSidebar();
+    }
+
+    function fetchHQOptions() {
+      const city = document.getElementById('playerCity').value || 'Metroville';
+      const container = document.getElementById('hqListings');
+      const mockResults = [
+        `${Math.floor(Math.random()*900+100)} Commerce Ave, ${city} – $3,200/mo`,
+        `${Math.floor(Math.random()*900+100)} Freight Blvd, ${city} – $2,750/mo`,
+        `${Math.floor(Math.random()*900+100)} Industrial Loop, ${city} – $3,450/mo`
+      ];
+      container.innerHTML = mockResults.map(addr =>
+        `<div class="hq-option" onclick="selectHQOption(this)">${addr}</div>`
+      ).join('');
+    }
+
+    function selectHQOption(elem) {
+      document.querySelectorAll('.hq-option').forEach(opt => opt.classList.remove('selected'));
+      elem.classList.add('selected');
+      document.getElementById('selectedHQ').value = elem.textContent;
+    }
+
+    updateLoanSummary();
+  </script>
 </body>
 </html>
