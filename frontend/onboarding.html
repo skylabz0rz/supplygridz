@@ -2,71 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SupplyGridz Onboarding Extended</title>
+  <title>SupplyGridz Onboarding Full Process</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background: #eef3f8; font-family: monospace; padding: 0; margin: 0; }
+    body { margin: 0; font-family: monospace; background: #eef3f8; }
+    #dashboard-container { display: flex; min-height: 100vh; }
+    #sidebar {
+      width: 200px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px;
+    }
+    #sidebar .brand { font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; }
+    #sidebar ul { list-style: none; padding: 0; }
+    #sidebar ul li { margin-bottom: 15px; opacity: 0.6; }
+    #sidebar ul li.active { font-weight: bold; opacity: 1; }
+
+    #main { flex: 1; display: flex; flex-direction: column; }
+    #topbar {
+      background: #34495e;
+      color: white;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+
+    #content { flex: 1; display: flex; justify-content: center; padding: 40px; }
+    .paper {
+      background: white;
+      padding: 30px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      border: 1px solid #ccc;
+    }
+
     .step { display: none; }
-    .step.active { display: block; padding: 40px; max-width: 720px; margin: 0 auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    .step.active { display: block; }
     .form-group { margin-bottom: 20px; }
+    .title { font-size: 1.2rem; font-weight: bold; border-bottom: 2px double #222; margin-bottom: 20px; }
+    .highlight { background: #ffffaa; padding: 5px; }
+    .property { border: 1px solid #ccc; padding: 10px; margin-top: 10px; display: none; }
+    .property.active { display: block; }
+    .property img { width: 100%; height: auto; }
     .nav { text-align: center; margin-top: 20px; }
-    .highlight { background: #ffffaa; padding: 4px; }
+    .garage-note { font-style: italic; font-size: 0.85em; color: #333; }
+    label { display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
+  <div id="dashboard-container">
+    <aside id="sidebar">
+      <div class="brand">SupplyGridz</div>
+      <ul>
+        <li id="nav-step-1" class="active">🧑 Registration</li>
+        <li id="nav-step-2">💰 Loan</li>
+        <li id="nav-step-3">🏢 HQ Lease</li>
+        <li id="nav-step-4">🚚 Vehicle</li>
+        <li id="nav-step-5">📊 Review</li>
+      </ul>
+    </aside>
 
-<div id="step-1" class="step active">
-  <h2>Step 1 – Player Registration</h2>
-  <div class="form-group"><label>Name:</label><input type="text"></div>
-  <div class="form-group"><label>City:</label><input type="text"></div>
-  <div class="form-group"><label>State:</label><input type="text"></div>
-</div>
+    <main id="main">
+      <header id="topbar">SBA Application – Startup Business Administration</header>
+      <section id="content">
+        <div class="paper">
+          <!-- STEP 1 -->
+          <div id="step-1" class="step active">
+            <div class="title">SBA FORM 100-A – PLAYER REGISTRATION</div>
+            <div class="form-group"><label>In-Game Name:</label><input type="text" id="playerName" class="highlight" /></div>
+            <div class="form-group"><label>Sex:</label><select id="playerSex" class="highlight"><option>Male</option><option>Female</option><option>Non-binary</option></select></div>
+            <div class="form-group"><label>Ethnicity:</label><select id="playerEthnicity" class="highlight"><option>White</option><option>Black</option><option>Asian</option><option>Hispanic</option><option>Other</option></select></div>
+            <div class="form-group"><label>City:</label><input type="text" id="playerCity" class="highlight" /></div>
+            <div class="form-group"><label>State:</label><input type="text" id="playerState" class="highlight" /></div>
+          </div>
 
-<div id="step-2" class="step"><h2>Step 2 – Loan</h2></div>
-<div id="step-3" class="step"><h2>Step 3 – Lease HQ</h2></div>
+          <!-- STEP 2 -->
+          <div id="step-2" class="step">
+            <div class="title">SBA FORM 302-B – LOAN REQUEST</div>
+            <div class="form-group"><label>Loan Amount:</label><input type="range" id="loanAmount" min="50000" max="300000" step="10000" value="50000" oninput="updateLoanSummary()"><div><strong>Selected:</strong> $<span id="loanAmountVal">50000</span></div></div>
+            <div class="form-group"><label>Loan Term:</label><input type="range" id="loanTerm" min="1" max="10" step="4" value="1" oninput="updateLoanSummary()"><div><strong>Years:</strong> <span id="loanTermVal">1</span></div></div>
+            <div class="form-group"><label>Payment Frequency:</label><br><label><input type="radio" name="freq" value="daily"> Daily</label><label><input type="radio" name="freq" value="weekly" checked> Weekly</label><label><input type="radio" name="freq" value="monthly"> Monthly</label></div>
+            <div class="form-group"><label>Interest Rate:</label><input type="text" id="interestRate" readonly /></div>
+            <div class="form-group"><label>Projected Payment:</label><input type="text" id="projectedPayment" readonly /></div>
+          </div>
 
-<div id="step-4" class="step">
-  <h2>Step 4 – Pick Starting Vehicle</h2>
-  <p><strong>2020 GridzRunner V1</strong> – Basic delivery cab, 2-axle, 400hp engine.<br>
-  Monthly lease: <span class="highlight">$1,000</span></p>
-</div>
+          <!-- STEP 3 -->
+          <div id="step-3" class="step">
+            <div class="title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
+            <div class="form-group">
+              <img src="https://via.placeholder.com/640x360.png?text=HQ" />
+              <p><strong>Address:</strong> 101 Depot Rd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,200<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
+              <input type="text" id="selectedLease" value="Depot A - $3200" class="highlight" readonly />
+            </div>
+          </div>
 
-<div id="step-5" class="step">
-  <h2>Step 5 – Final Review</h2>
-  <ul>
-    <li>Starting Funds: <strong>$50,000</strong></li>
-    <li>Monthly HQ Rent: <strong>$3,200</strong></li>
-    <li>Monthly Vehicle Lease: <strong>$1,000</strong></li>
-  </ul>
-</div>
+          <!-- STEP 4 -->
+          <div id="step-4" class="step">
+            <div class="title">SBA FORM 411-V – INITIAL VEHICLE SELECTION</div>
+            <p><strong>2020 GridzRunner V1</strong><br>Basic delivery cab, 2-axle, 400hp engine.<br>Monthly lease: <span class="highlight">$1,000</span></p>
+            <input type="hidden" id="vehicleLease" value="1000" />
+          </div>
 
-<div class="nav">
-  <button id="backBtn" onclick="prevStep()">⬅ Back</button>
-  <button id="nextBtn" onclick="nextStep()">Next ➡</button>
-  <button id="submitBtn" style="display:none;" onclick="alert('Submitted!')">Submit ✅</button>
-</div>
+          <!-- STEP 5 -->
+          <div id="step-5" class="step">
+            <div class="title">SBA FORM 500-R – FINAL APPLICATION SUMMARY</div>
+            <ul>
+              <li>Starting Funds: <strong>$50,000</strong></li>
+              <li>Monthly HQ Rent: <strong>$3,200</strong></li>
+              <li>Monthly Vehicle Lease: <strong>$1,000</strong></li>
+            </ul>
+          </div>
+
+          <div class="nav">
+            <button id="backBtn" onclick="prevStep()">⬅ Back</button>
+            <button id="nextBtn" onclick="nextStep()">Next ➡</button>
+            <button id="submitBtn" style="display:none;" onclick="alert('Application Submitted!')">Submit ✅</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
 <script>
-let currentStep = 1;
+  let currentStep = 1;
 
-function updateStep() {
-  document.querySelectorAll('.step').forEach((el, i) => {
-    el.classList.toggle('active', i === currentStep - 1);
-  });
-  document.getElementById('submitBtn').style.display = currentStep === 5 ? 'inline-block' : 'none';
-  document.getElementById('nextBtn').style.display = currentStep === 5 ? 'none' : 'inline-block';
-  document.getElementById('backBtn').style.display = currentStep === 1 ? 'none' : 'inline-block';
-}
+  function updateSidebar(step) {
+    for (let i = 1; i <= 5; i++) {
+      const item = document.getElementById(`nav-step-${i}`);
+      if (item) item.className = (i === step) ? 'active' : '';
+    }
+  }
 
-function nextStep() {
-  currentStep++;
+  function updateStep() {
+    document.querySelectorAll('.step').forEach((el, i) =>
+      el.classList.toggle('active', i === currentStep - 1));
+    updateSidebar(currentStep);
+    document.getElementById('submitBtn').style.display = (currentStep === 5) ? 'inline-block' : 'none';
+    document.getElementById('nextBtn').style.display = (currentStep === 5) ? 'none' : 'inline-block';
+    document.getElementById('backBtn').style.display = (currentStep === 1) ? 'none' : 'inline-block';
+  }
+
+  function nextStep() { currentStep++; updateStep(); }
+  function prevStep() { currentStep--; updateStep(); }
+
+  function updateLoanSummary() {
+    const loan = parseInt(document.getElementById('loanAmount').value);
+    const term = parseInt(document.getElementById('loanTerm').value);
+    document.getElementById('loanAmountVal').textContent = loan;
+    document.getElementById('loanTermVal').textContent = term;
+    const rate = (Math.random() * 2 + 4).toFixed(2);
+    document.getElementById('interestRate').value = rate + '%';
+    const payment = ((loan * (1 + rate / 100)) / (term * 12)).toFixed(2);
+    document.getElementById('projectedPayment').value = `$${payment}/mo`;
+  }
+
+  updateLoanSummary();
   updateStep();
-}
-function prevStep() {
-  currentStep--;
-  updateStep();
-}
-
-updateStep();
 </script>
 </body>
 </html>
