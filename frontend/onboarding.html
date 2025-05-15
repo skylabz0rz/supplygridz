@@ -1,120 +1,144 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SBA Loan Application</title>
+  <title>SupplyGridz Full Onboarding</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      background: #eef1f5;
-      font-family: 'Courier New', Courier, monospace;
-      margin: 0;
-      padding: 40px;
-      display: flex;
-      justify-content: center;
-    }
-    .paper {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 40px;
-      max-width: 720px;
-      width: 100%;
-      box-shadow: 0 0 30px rgba(0,0,0,0.1);
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .faux-form-title {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      text-align: left;
-      border-bottom: 2px double #333;
-      padding-bottom: 5px;
-    }
-    .highlight {
-      background: #ffffaa;
-      border: 1px dashed #999;
-      padding: 5px;
-    }
-    .carousel {
-      text-align: center;
-    }
-    .property {
-      display: none;
-      padding: 10px;
-    }
-    .property.active {
-      display: block;
-    }
-    .property img {
-      max-width: 100%;
-      height: auto;
-      margin-bottom: 10px;
-    }
-    .step-nav {
-      text-align: center;
-      margin-top: 20px;
-    }
-    button {
-      margin: 0 10px;
-    }
+    body { background: #f0f4f8; font-family: monospace; padding: 40px; display: flex; justify-content: center; }
+    .paper { background: white; padding: 30px; width: 100%; max-width: 800px; box-shadow: 0 0 20px rgba(0,0,0,0.1); border: 1px solid #ccc; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    .title { font-size: 1.2rem; font-weight: bold; border-bottom: 2px double #222; margin-bottom: 20px; }
+    .highlight { background: #ffffaa; padding: 5px; }
+    .property { border: 1px solid #ccc; padding: 10px; margin-top: 10px; display: none; }
+    .property.active { display: block; }
+    .property img { width: 100%; height: auto; }
+    .nav { text-align: center; margin-top: 20px; }
+    .garage-note { font-style: italic; font-size: 0.85em; color: #333; }
+    label { display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
   <div class="paper">
-    <div id="step-3">
-      <div class="faux-form-title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
-      <div class="carousel">
+    <div id="step-1" class="step active">
+      <div class="title">SBA FORM 100-A – PLAYER REGISTRATION</div>
+      <div class="form-group"><label>In-Game Name:</label><input type="text" id="playerName" class="highlight" /></div>
+      <div class="form-group"><label>Sex:</label>
+        <select id="playerSex" class="highlight"><option>Male</option><option>Female</option><option>Non-binary</option></select>
+      </div>
+      <div class="form-group"><label>Ethnicity:</label>
+        <select id="playerEthnicity" class="highlight"><option>White</option><option>Black</option><option>Asian</option><option>Hispanic</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>City:</label><input type="text" id="playerCity" class="highlight" /></div>
+      <div class="form-group"><label>State:</label><input type="text" id="playerState" class="highlight" /></div>
+    </div>
+
+    <div id="step-2" class="step">
+      <div class="title">SBA FORM 302-B – LOAN REQUEST</div>
+      <div class="form-group">
+        <label>Loan Amount:</label>
+        <input type="range" id="loanAmount" min="50000" max="300000" step="10000" value="50000" oninput="updateLoanSummary()">
+        <div><strong>Selected:</strong> $<span id="loanAmountVal">50000</span></div>
+      </div>
+      <div class="form-group">
+        <label>Loan Term:</label>
+        <input type="range" id="loanTerm" min="1" max="10" step="4" value="1" oninput="updateLoanSummary()">
+        <div><strong>Years:</strong> <span id="loanTermVal">1</span></div>
+      </div>
+      <div class="form-group">
+        <label>Payment Frequency:</label><br>
+        <label><input type="radio" name="freq" value="daily"> Daily</label>
+        <label><input type="radio" name="freq" value="weekly" checked> Weekly</label>
+        <label><input type="radio" name="freq" value="monthly"> Monthly</label>
+      </div>
+      <div class="form-group">
+        <label>Interest Rate:</label>
+        <input type="text" id="interestRate" readonly />
+      </div>
+      <div class="form-group">
+        <label>Projected Payment:</label>
+        <input type="text" id="projectedPayment" readonly />
+      </div>
+    </div>
+
+    <div id="step-3" class="step">
+      <div class="title">SBA FORM 2031-HQ – FACILITY LEASE SELECTION</div>
+      <div id="hqProperties">
         <div class="property active">
-          <img src="https://via.placeholder.com/640x360.png?text=Bay+Industrial+Unit" alt="HQ1">
-          <p><strong>Bay Industrial Unit:</strong> High-traffic corner property with fenced yard, 2-bay service garage, and dedicated dispatch office. $3,250/mo</p>
-          <button onclick="selectHQ('Bay Industrial Unit - $3,250/mo')">Select This Lease</button>
+          <img src="https://via.placeholder.com/640x360.png?text=Depot+A" />
+          <p><strong>Address:</strong> 101 Depot Rd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,200<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
+          <button onclick="selectLease('Depot A - $3200')">Select This Lease</button>
         </div>
         <div class="property">
-          <img src="https://via.placeholder.com/640x360.png?text=Steel+Yard+Warehouse" alt="HQ2">
-          <p><strong>Steel Yard Warehouse:</strong> Renovated freight terminal with climate control, loft office, and front parking. $2,975/mo</p>
-          <button onclick="selectHQ('Steel Yard Warehouse - $2,975/mo')">Select This Lease</button>
+          <img src="https://via.placeholder.com/640x360.png?text=Depot+B" />
+          <p><strong>Address:</strong> 212 Freight Ave<br><strong>Garage Level:</strong> 2<br><strong>Rent:</strong> $4,480<br><span class="garage-note">1 Bay + 3-Door Garage</span></p>
+          <button onclick="selectLease('Depot B - $4480')">Select This Lease</button>
         </div>
         <div class="property">
-          <img src="https://via.placeholder.com/640x360.png?text=Logistics+Plaza+Suite+3" alt="HQ3">
-          <p><strong>Logistics Plaza Suite 3:</strong> Interior bay suite with private lift, truck access ramp, and custom paint option. $3,100/mo</p>
-          <button onclick="selectHQ('Logistics Plaza Suite 3 - $3,100/mo')">Select This Lease</button>
-        </div>
-        <div class="step-nav">
-          <button onclick="prevProperty()">⬅ Previous</button>
-          <button onclick="nextProperty()">Next ➡</button>
+          <img src="https://via.placeholder.com/640x360.png?text=Depot+C" />
+          <p><strong>Address:</strong> 39 Truckstop Blvd<br><strong>Garage Level:</strong> 1<br><strong>Rent:</strong> $3,100<br><span class="garage-note">1 Bay + 1 Garage (2 Vehicles)</span></p>
+          <button onclick="selectLease('Depot C - $3100')">Select This Lease</button>
         </div>
       </div>
-      <div class="form-group" style="margin-top:20px;">
-        <label>Selected Lease:</label>
-        <input type="text" id="selectedHQ" readonly class="highlight" />
+      <div class="form-group"><label>Selected Lease:</label><input type="text" id="selectedLease" readonly class="highlight" /></div>
+      <div class="nav">
+        <button onclick="prevHQ()">⬅ Prev</button>
+        <button onclick="nextHQ()">Next ➡</button>
       </div>
+    </div>
+
+    <div class="nav">
+      <button onclick="prevStep()">⬅ Back</button>
+      <button id="nextBtn" onclick="nextStep()">Next ➡</button>
+      <button id="submitBtn" style="display:none;" onclick="alert('Application Submitted!')">Submit ✅</button>
     </div>
   </div>
 
   <script>
-    let current = 0;
+    let currentStep = 1;
+    let hqIndex = 0;
     const properties = document.querySelectorAll('.property');
 
-    function showProperty(index) {
-      properties.forEach((el, i) => el.classList.toggle('active', i === index));
+    function updateStep() {
+      document.querySelectorAll('.step').forEach((el, i) =>
+        el.classList.toggle('active', i === currentStep - 1));
+      document.getElementById('submitBtn').style.display = (currentStep === 3) ? 'inline-block' : 'none';
+      document.getElementById('nextBtn').style.display = (currentStep === 3) ? 'none' : 'inline-block';
     }
 
-    function nextProperty() {
-      current = (current + 1) % properties.length;
-      showProperty(current);
+    function nextStep() { currentStep++; updateStep(); }
+    function prevStep() { currentStep--; updateStep(); }
+
+    function updateLoanSummary() {
+      const loan = parseInt(document.getElementById('loanAmount').value);
+      const term = parseInt(document.getElementById('loanTerm').value);
+      document.getElementById('loanAmountVal').textContent = loan;
+      document.getElementById('loanTermVal').textContent = term;
+      const rate = (Math.random() * 2 + 4).toFixed(2);
+      document.getElementById('interestRate').value = rate + '%';
+      const payment = ((loan * (1 + rate / 100)) / (term * 12)).toFixed(2);
+      document.getElementById('projectedPayment').value = `$${payment}/mo`;
     }
 
-    function prevProperty() {
-      current = (current - 1 + properties.length) % properties.length;
-      showProperty(current);
+    function selectLease(text) {
+      document.getElementById('selectedLease').value = text;
     }
 
-    function selectHQ(text) {
-      document.getElementById('selectedHQ').value = text;
+    function nextHQ() {
+      properties[hqIndex].classList.remove('active');
+      hqIndex = (hqIndex + 1) % properties.length;
+      properties[hqIndex].classList.add('active');
     }
+
+    function prevHQ() {
+      properties[hqIndex].classList.remove('active');
+      hqIndex = (hqIndex - 1 + properties.length) % properties.length;
+      properties[hqIndex].classList.add('active');
+    }
+
+    updateLoanSummary();
   </script>
 </body>
 </html>
